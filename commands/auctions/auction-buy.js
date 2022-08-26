@@ -3,8 +3,13 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('abuy')
-		.setDescription('Buy an auction entry')
+		.setDescription('Buy auction entries')
 		.setDMPermission(false)
+		.addIntegerOption(option => 
+			option.setName('auction-id')
+				.setDescription('Auction\'s id')
+				.setRequired(true),
+		)
 		.addIntegerOption(option =>
 			option.setName('entries')
 				.setDescription('Number of entries to buy')

@@ -16,17 +16,17 @@ module.exports = {
 				.setDescription('Character\'s image link')
 				.setRequired(true),
 		)
-		.addSIntegerOption(option =>
-			option.setName('entry price')
+		.addIntegerOption(option =>
+			option.setName('price')
 				.setDescription('Entry price')
 				.setRequired(true),
 		)
 		.addIntegerOption(option =>
-			option.setName('max user entries')
+			option.setName('max-user-entries')
 				.setDescription('Max number of entries that a user can purchase'),
 		)
 		.addIntegerOption(option =>
-			option.setName('max entries')
+			option.setName('max-entries')
 				.setDescription('Max number of entries for the auction'),
 		),
 	async execute(interaction) {
