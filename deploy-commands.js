@@ -2,7 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { SlashCommandBuilder, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
-const { clientId, token } = require('./config.json');
+require('dotenv').config()
+
+const { CLIENT_ID, TOKEN } = process.env;
 
 const commands = [];
 const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
@@ -15,8 +17,8 @@ for (const folder of commandFolders) {
 	}
 }
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(TOKEN);
 
-rest.put(Routes.applicationCommands(clientId), { body: commands })
+rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands })
 	.then(() => console.log('Successfully registered application commands.'))
 	.catch(console.error);

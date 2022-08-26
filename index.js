@@ -1,13 +1,15 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const mysql = require('mysql2');
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { token } = require('./config.json');
+require('dotenv').config();
+
+const { TOKEN } = process.env;
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
-
 
 const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
 for (const folder of commandFolders) {
@@ -33,4 +35,4 @@ for (const file of eventFiles) {
 }
 
 // Login to Discord with your client's token
-client.login(token);
+client.login(TOKEN);
