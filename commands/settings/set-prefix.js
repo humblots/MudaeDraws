@@ -17,16 +17,13 @@ module.exports = {
         const guildId = interaction.guildId;
         const newPrefix = interaction.options.getString('input');
 
-        let guild = await Guild.findByPk(guildId);
-        let oldPrefix = null;
-        if (guild === null) {
-            guild = await Guild.create({id: guildId, prefix: newPrefix});
-        } else {
-            oldPrefix = guild.prefix;
-            guild.prefix = newPrefix;
-            await guild.save();
-        }
-
-        await interaction.editReply('Changement effectué, ancien préfixe : ' + oldPrefix || '$' );
+        await Guild.findOrCreate({
+            where: { id: guildId },
+            defaults: {
+                prefix: newPrefix
+            }
+        });
+ 
+        await interaction.editReply('Changement effectué, nouveau préfixe : ' + newPrefix );
 	},
 };
