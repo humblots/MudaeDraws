@@ -13,11 +13,15 @@ services:
   mysql:
     image: mysql
     container_name: ma_mysql
-    command: --default-authentication-plugin=mysql_native_password
+    command: >
+      --default-authentication-plugin=mysql_native_password &&
+      sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && 
+      echo $TZ > /etc/timezone"
     restart: on-failure
     environment:
       MYSQL_DATABASE: mudae_auctions
       MYSQL_ROOT_PASSWORD: root
+      TZ: Europe/Paris
     ports:
       - 3306:3306
 
