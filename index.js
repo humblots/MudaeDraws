@@ -4,7 +4,7 @@ const mysql = require('mysql2');
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 require('dotenv').config();
 
-const { TOKEN, HOST, USER, PASSWORD, DATABASE } = process.env;
+const { TOKEN } = process.env;
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -34,19 +34,5 @@ for (const file of eventFiles) {
 	}
 }
 
-// create the connection to database
-const db = mysql.createConnection({
-	host: HOST,
-	user: USER,
-	password: PASSWORD,
-	database: DATABASE
-});
-
-db.connect(err => {
-	if (err) throw err;
-	console.log("Database connection successful");
-	// Login to Discord with your client's token
-	client.login(TOKEN);
-})
-
-
+// Login to Discord with your client's token
+client.login(TOKEN);
