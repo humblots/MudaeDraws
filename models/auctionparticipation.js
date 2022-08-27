@@ -11,15 +11,20 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.belongsTo(models.User, { foreignKey: 'user_id' });
+      this.belongsTo(models.Auction, { foreignKey: 'auction_id' });
     }
   }
   AuctionParticipation.init({
-    auction_id: DataTypes.INTEGER,
-    user_id: DataTypes.INTEGER,
-    entries: DataTypes.INTEGER
+    auction_id: { type: DataTypes.INTEGER, allowNull: false},
+    user_id: { type: DataTypes.INTEGER, allowNull: false},
+    entries: { type: DataTypes.INTEGER, allowNull: false },
+    created_at: { type: DataTypes.DATE, allowNull: false},
+    updated_at: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'AuctionParticipation',
+    underscored: true
   });
   return AuctionParticipation;
 };

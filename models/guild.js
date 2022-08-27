@@ -11,10 +11,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.Auction, { foreignKey: 'guild_id' });
     }
   }
   Guild.init({
-    id: DataTypes.STRING,
+    id: { type: DataTypes.STRING, allowNull: false},
     prefix: DataTypes.STRING
   }, {
     sequelize,
