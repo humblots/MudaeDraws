@@ -18,6 +18,8 @@ services:
     environment:
       MYSQL_DATABASE: mudae_auctions
       MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
 
 networks:
   default:

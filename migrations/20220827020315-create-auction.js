@@ -11,10 +11,7 @@ module.exports = {
       guild_id: {
         type: Sequelize.STRING,
         references: {
-          model: {
-            tableName: 'guilds',
-            schema: 'schema'
-          },
+          model: 'guilds',
           key: 'id'
         },
         allowNull: false
@@ -22,10 +19,7 @@ module.exports = {
       user_id: {
         type: Sequelize.STRING,
         references: {
-          model: {
-            tableName: 'users',
-            schema: 'schema'
-          },
+          model: 'users',
           key: 'id'
         },
         allowNull: false

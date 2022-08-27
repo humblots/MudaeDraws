@@ -11,10 +11,7 @@ module.exports = {
       auction_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: {
-            tableName: 'auctions',
-            schema: 'schema'
-          },
+          model: 'auctions',
           key: 'id'
         },
         allowNull: false
@@ -22,10 +19,7 @@ module.exports = {
       user_id: {
         type: Sequelize.STRING,
         references: {
-          model: {
-            tableName: 'users',
-            schema: 'schema'
-          },
+          model: 'users',
           key: 'id'
         },
         allowNull: false
