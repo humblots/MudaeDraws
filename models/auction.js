@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      $this.belongsToOne(models.User, {foreignKey: 'user_id'});
-      $this.belongsToOne(models.Guild, {foreignKey: 'guild_id'});
-      $this.hasMany(models.AuctionParticipation, {foreignKey: 'auction_id'})
+      this.belongsTo(models.User, {foreignKey: 'user_id'});
+      this.belongsTo(models.Guild, {foreignKey: 'guild_id'});
+      this.hasMany(models.AuctionParticipation, {foreignKey: 'auction_id'})
     }
   }
   Auction.init({
