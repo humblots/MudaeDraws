@@ -24,6 +24,6 @@ module.exports = {
             }
         });
  
-        await interaction.editReply('Changement effectué, nouveau préfixe : ' + newPrefix );
+        await interaction.editReply(`**${newPrefix}** est le nouveau préfixe de ce serveur !`);
 	},
 };
