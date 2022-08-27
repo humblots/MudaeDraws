@@ -1,19 +1,19 @@
 {
-    "DEV": {
+    "development": {
       "username": "",
       "password": "",
       "database": "",
       "host": "",
       "dialect": "mysql"
     },
-    "TEST": {
+    "test": {
       "username": "",
       "password": "",
       "database": "",
       "host": "",
       "dialect": "mysql"
     },
-    "PROD": {
+    "production": {
       "username": "",
       "password": "",
       "database": "",
