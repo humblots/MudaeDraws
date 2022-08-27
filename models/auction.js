@@ -4,6 +4,25 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Auction extends Model {
+
+    /**
+     * Default auction price
+     */
+    static DEFAULT_PRICE = 1;
+
+    /**
+     * Default auction end after set days 
+     */
+    static DEFAULT_END_AFTER = 1
+
+    /**
+     * status constants
+     */
+    static ONGOING_STATUS = "En cours";
+    static PENDING_STATUS = "En attente";
+    static FINISHED_STATUS = "Terminée";
+    static CANCELLED_STATUS = "Annulée";
+
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,6 +32,18 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.User, {foreignKey: 'user_id'});
       this.belongsTo(models.Guild, {foreignKey: 'guild_id'});
       this.hasMany(models.AuctionParticipation, {foreignKey: 'auction_id'})
+    }
+
+    getEmbedColor() {
+      let color;
+      switch(this.status) {
+        case Auction.ONGOING_STATUS: {color = 0x5BC0DE; break;}
+        case Auction.PENDING_STATUS: {color = 0xAAAAAA; break;}
+        case Auction.CANCELLED_STATUS : {color = 0xBB2124; break;}
+        case Auction.FINISHED_STATUS: {color = 0x22BB33; break;}
+        default: {color = 0xFFFFFF}
+      }
+      return color;
     }
   }
   Auction.init({
@@ -27,12 +58,12 @@ module.exports = (sequelize, DataTypes) => {
     end_date: DataTypes.DATE,
     created_at: { type: DataTypes.DATE, allowNull: false},
     updated_at: DataTypes.DATE,
-    status: { type: DataTypes.STRING, allowNull: false}
+    status: { type: DataTypes.STRING, allowNull: false }
   }, {
     sequelize,
     modelName: 'Auction',
-    underscored: true,
-    tableName: 'auctions'
+    tableName: 'auctions',
+    underscored: true
   });
   return Auction;
 };
