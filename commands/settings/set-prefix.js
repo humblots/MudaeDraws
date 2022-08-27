@@ -13,8 +13,20 @@ module.exports = {
                 .setMaxLength(5),
 		),
 	async execute(interaction) {
-        const guild = Guild.findByPk(interaction.guild_id);
-        if (guild === null) await interaction.reply('Guild not found');
-        else await interaction.reply("Guild found! ta database est d'enfer mon reuf");
+        await interaction.deferReply();
+        const guildId = interaction.guildId;
+        const newPrefix = interaction.options.getString('input');
+
+        let guild = await Guild.findByPk(guildId);
+        let oldPrefix = null;
+        if (guild === null) {
+            guild = await Guild.create({id: guildId, prefix: newPrefix});
+        } else {
+            oldPrefix = guild.prefix;
+            guild.prefix = newPrefix;
+            await guild.save();
+        }
+
+        await interaction.editReply('Changement effectué, ancien préfixe : ' + oldPrefix || '$' );
 	},
 };
