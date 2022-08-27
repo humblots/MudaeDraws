@@ -12,6 +12,9 @@ module.exports = {
 			option.setName('user')
 				.setDescription('User for which to return the list'),
 		),
+	/**
+	 * TODO: Better list display with navigation, more filters
+	 */
 	async execute(interaction) {
 		await interaction.deferReply();
 		const options = interaction.options;

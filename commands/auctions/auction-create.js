@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, ChatInputCommandInteraction } = require('discord.js');
 const { User, Auction, Guild } = require('../../models');
 const moment = require('moment');
 const auctionEmbed  = require('../../utils/auction-embed');
@@ -44,6 +44,10 @@ module.exports = {
 				.setDescription('Max number of entries for the auction, unlimited by default')
 				.setMinValue(1),
 		),
+
+	/**
+	 * TODO: FIX Date format (current is english date e.g. 08/27/2022)
+	 */
 	async execute(interaction) {
 		await interaction.deferReply({ ephemeral: true });
 		const options = interaction.options;
@@ -124,9 +128,6 @@ module.exports = {
 		});
 
 		const member = interaction.guild.members.cache.get(userId);
-		const startDateTimeStamp = startDate.unix();
-		const endDateTimeStamp = endDate.unix();
-
 		const embed = auctionEmbed(auction, member);
 		await interaction.editReply("Done.");
 		await interaction.followUp({ embeds: [ embed ] });
