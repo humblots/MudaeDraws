@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Guild',
     tableName: 'guilds',
+    underscored: true,
     timestamps: false
   });
   return Guild;

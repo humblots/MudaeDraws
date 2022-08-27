@@ -15,11 +15,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    id: { type: DataTypes.STRING, allowNull: false, primaryKey: true }
+    id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
+    created_at: { type: DataTypes.DATE, allowNull: false }
   }, {
     sequelize,
     modelName: 'User',
     tableName: 'users',
+    underscored: true,
     timestamps: false
   });
   return User;

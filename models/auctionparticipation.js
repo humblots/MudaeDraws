@@ -24,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'AuctionParticipation',
-    underscored: true,
-    tableName: 'auction_participations'
+    tableName: 'auction_participations',
+    underscored: true
   });
   return AuctionParticipation;
 };
