@@ -4,7 +4,6 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Auction extends Model {
-
     /**
      * Default auction price
      */
@@ -23,6 +22,20 @@ module.exports = (sequelize, DataTypes) => {
     static FINISHED_STATUS = "Terminée";
     static CANCELLED_STATUS = "Annulée";
 
+    static STATUS_COLORS = {
+      "En cours" : 0x5BC0DE,
+      "En attente" : 0xAAAAAA,
+      "Terminée" : 0x22BB33,
+      "Annulée" : 0xBB2124
+    }
+
+    static STATUS_SYMBOLS = {
+      "En cours" : '🔵',
+      "En attente" : '⚪',
+      "Terminée" : '🟢',
+      "Annulée" : '🔴'
+    }
+    
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -35,15 +48,11 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     getEmbedColor() {
-      let color;
-      switch(this.status) {
-        case Auction.ONGOING_STATUS: {color = 0x5BC0DE; break;}
-        case Auction.PENDING_STATUS: {color = 0xAAAAAA; break;}
-        case Auction.CANCELLED_STATUS : {color = 0xBB2124; break;}
-        case Auction.FINISHED_STATUS: {color = 0x22BB33; break;}
-        default: {color = 0xFFFFFF}
-      }
-      return color;
+      return Auction.STATUS_COLORS[this.status];
+    }
+
+    getStatusSymbol() {
+      return Auction.STATUS_SYMBOLS[this.status];
     }
   }
   Auction.init({

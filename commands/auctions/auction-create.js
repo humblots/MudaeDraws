@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { User, Auction, Guild } = require('../../models');
 const moment = require('moment');
+const auctionEmbed  = require('../../utils/auction-embed');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -122,24 +123,11 @@ module.exports = {
 			status: status
 		});
 
-		const user = interaction.client.users.cache.get(userId);
+		const member = interaction.guild.members.cache.get(userId);
 		const startDateTimeStamp = startDate.unix();
 		const endDateTimeStamp = endDate.unix();
-		const embed = new EmbedBuilder()
-			.setColor(auction.getEmbedColor())
-			.setTitle("Enchère pour " + character)
-			.setDescription(
-				`**Prix d'entrée:** ${price || Auction.DEFAULT_PRICE}\n` +
-				`**Entrées max par participants:** ${maxUserEntries || 'illimité'}\n` +
-				`**Entrées max total:** ${maxEntries || 'illimité'}`
-			)
-			.addFields(
-				{ name: "Date de début", value: `<t:${startDateTimeStamp}:R> (<t:${startDateTimeStamp}>)`},
-				{ name: 'Date de fin', value: `<t:${endDateTimeStamp}:R> (<t:${endDateTimeStamp}>)`},
-			)
-			.setImage(img)
-			.setFooter({ text: `Par ${user.username} - id: ${auction.id} - ${auction.status}`, iconURL: user.avatarURL() });
 
+		const embed = auctionEmbed(auction, member);
 		await interaction.editReply("Done.");
 		await interaction.followUp({ embeds: [ embed ] });
 	},
