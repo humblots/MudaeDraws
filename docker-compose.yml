@@ -6,7 +6,6 @@ services:
     container_name: ma_cli
     volumes:
       - ./:/src/
-    command: npm run deploy
 
 networks:
   default:
