@@ -27,7 +27,7 @@ module.exports = {
 		}
 
 		// To complete with participants visualization
-		const auctionMember = interaction.guild.members.cache.get(auction.user_id);
+		const auctionMember = await interaction.guild.members.fetch(auction.user_id);
 		const embed = auctionEmbed(auction, auctionMember);
 		await interaction.editReply({ embeds: [ embed ] });
 	},
