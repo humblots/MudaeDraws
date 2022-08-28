@@ -3,7 +3,7 @@ const moment = require('moment');
 const { Auction } = require('../models');
 
 
-const auctionListEmbed = (count, rows, guild, member = null) => {
+const auctionListEmbed = async (count, rows, guild, member = null) => {
     const embed = new EmbedBuilder();
 
     embed.setAuthor({
@@ -14,7 +14,8 @@ const auctionListEmbed = (count, rows, guild, member = null) => {
     for(const auction of rows) {
         const startDateTimeStamp = moment(auction.start_date).unix();
         const endDateTimeStamp = moment(auction.end_date).unix();
-        const auctionMember = guild.members.cache.get(auction.user_id);
+        auctionMember = await guild.members.fecth(auction.user_id);
+        
         embed.addFields({
             name: `${auction.getStatusSymbol()} ${auction.status} - ` +
                 `${auction.character} - Id: ${auction.id} - Par ${auctionMember.displayName}`,

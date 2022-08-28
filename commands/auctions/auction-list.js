@@ -33,7 +33,7 @@ module.exports = {
 			return await interaction.editReply("Aucune enchère retrouvée.");
 		}
 
-		const embed = auctionListEmbed(count, rows, guild, member);
+		const embed = await auctionListEmbed(count, rows, guild, member);
 		await interaction.editReply({ embeds: [ embed ] });
 	},
 };
