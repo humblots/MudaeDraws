@@ -14,7 +14,7 @@ const auctionListEmbed = async (count, rows, guild, member = null) => {
     for(const auction of rows) {
         const startDateTimeStamp = moment(auction.start_date).unix();
         const endDateTimeStamp = moment(auction.end_date).unix();
-        auctionMember = await guild.members.fecth(auction.user_id);
+        auctionMember = await guild.members.fetch(auction.user_id);
         
         embed.addFields({
             name: `${auction.getStatusSymbol()} ${auction.status} - ` +
