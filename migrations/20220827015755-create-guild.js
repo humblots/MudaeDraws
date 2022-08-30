@@ -9,6 +9,9 @@ module.exports = {
       },
       prefix: {
         type: Sequelize.STRING
+      },
+      channel: {
+        type: Sequelize.STRING
       }
     });
   },
