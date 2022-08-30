@@ -3,9 +3,8 @@ const { DEFAULT_PREFIX } = require('../config.json');
 
 module.exports = {
 	name: 'message',
-	execute(message) {
+	execute(client, message) {
 		let prefix = DEFAULT_PREFIX;
-		const client = message.client;
 
 		const guild = Guild.findByPk(message.guildId);
 		if (guild !== null && guild.prefix) {

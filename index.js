@@ -1,6 +1,5 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const mysql = require('mysql2');
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 require('dotenv').config();
 
@@ -27,10 +26,10 @@ for (const file of eventFiles) {
 	const filePath = path.join(eventsPath, file);
 	const event = require(filePath);
 	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
+		client.once(event.name, (...args) => event.execute(client, ...args));
 	}
 	else {
-		client.on(event.name, (...args) => event.execute(...args));
+		client.on(event.name, (...args) => event.execute(client, ...args));
 	}
 }
 

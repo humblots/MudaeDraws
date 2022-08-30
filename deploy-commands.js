@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
-require('dotenv').config()
+require('dotenv').config();
 
 const { CLIENT_ID, TOKEN } = process.env;
 
@@ -13,7 +13,9 @@ for (const folder of commandFolders) {
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const command = require(path.join(commandsPath, file));
-		commands.push(command.data.toJSON());
+		if (command.data) {
+			commands.push(command.data.toJSON());
+		}
 	}
 }
 
