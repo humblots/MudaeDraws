@@ -54,7 +54,7 @@ module.exports = {
 
 		const startDateInput = options.getString('start-date');
 		const createdAt = new moment();
-		const startDate = startDateInput ? moment(startDateInput) : moment();
+		const startDate = startDateInput ? moment(startDateInput) : createdAt.clone();
 		
 		if (!startDate.isValid()) {
 			return await interaction.editReply(

@@ -12,7 +12,7 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		await interaction.dererReply();
+		await interaction.deferReply();
 
 		const options = interaction.options;
 		const member = interaction.member;
