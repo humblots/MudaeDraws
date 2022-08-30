@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const auctionListEmbed = require('../../utils/auction-list-embed');
 const { Auction } = require('../../models');
+const { auctionListEmbed, userAuctionListEmbed } = require('../../utils/auction-list-embed');
 
 
 module.exports = {
@@ -33,7 +33,10 @@ module.exports = {
 			return await interaction.editReply("Aucune enchère retrouvée.");
 		}
 
-		const embed = await auctionListEmbed(count, rows, guild, member);
+		const embed = member 
+			? userAuctionListEmbed(count, rows, guild, member)
+			: await auctionListEmbed(count, rows, guild)
+			
 		await interaction.editReply({ embeds: [ embed ] });
 	},
 };

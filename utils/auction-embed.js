@@ -2,7 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const { Auction } = require('../models');
 const moment = require('moment');
 
-const auctionEmbed = (auction, member) => {
+const auctionEmbed = (auction, member = null) => {
 
     const startDateTimeStamp = moment(auction.start_date).unix();
     const endDateTimeStamp = moment(auction.end_date).unix();
@@ -20,7 +20,11 @@ const auctionEmbed = (auction, member) => {
         { name: 'Date de fin', value: `<t:${endDateTimeStamp}:R> (<t:${endDateTimeStamp}>)`},
     )
     .setImage(auction.img_url)
-    .setFooter({ text: `Par ${member.displayName} - id: ${auction.id} - ${auction.status}`, iconURL: member.avatarURL() });
+    .setFooter({ 
+        text: `Par ${member ? member.displayName : auction.user_id} - id: ${auction.id} - ${auction.status}`, 
+        iconURL: member ? member.user.avatarURL() : null
+    });
+
     
     return embed;
 }
