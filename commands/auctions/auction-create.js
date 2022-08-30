@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChatInputCommandInteraction } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { User, Auction, Guild } = require('../../models');
 const moment = require('moment');
 const auctionEmbed  = require('../../utils/auction-embed');
@@ -20,17 +20,17 @@ module.exports = {
 				.setRequired(true),
 		)
 		.addStringOption(option => 
-			option.setName('start_date')
+			option.setName('start-date')
 				.setDescription('Date, Timestamp... (e.g: 24-07-2022 15:30:00). Now by default'),
 		)
 		.addStringOption(option =>
-			option.setName('end_date')
+			option.setName('end-date')
 				.setDescription(
 					`Date, Timestamp... (e.g:24-07-2022 15:30:00). ${Auction.DEFAULT_END_AFTER} day(s) after start by default`
 				),
 		)
 		.addIntegerOption(option =>
-			option.setName('entry_price')
+			option.setName('entry-price')
 				.setDescription(`Entry price, ${Auction.DEFAULT_PRICE} by default`)
 				.setMinValue(1),
 		)
@@ -52,7 +52,7 @@ module.exports = {
 		await interaction.deferReply({ ephemeral: true });
 		const options = interaction.options;
 
-		const startDateInput = options.getString('start_date');
+		const startDateInput = options.getString('start-date');
 		const createdAt = new moment();
 		const startDate = startDateInput ? moment(startDateInput) : moment();
 		
@@ -68,7 +68,7 @@ module.exports = {
 			);
 		}
 
-		const endDateInput = options.getString('end_date');
+		const endDateInput = options.getString('end-date');
 		const endDate = endDateInput 
 			? moment(endDateInput)
 			: startDate.clone().add(Auction.DEFAULT_END_AFTER, 'days');
@@ -107,7 +107,7 @@ module.exports = {
 
 		const character = options.getString('character');
 		const img = options.getString('image');
-		const price = options.getInteger('entry_price');
+		const price = options.getInteger('entry-price');
 		let status;
 		if (createdAt.isBefore(startDate)) status = Auction.PENDING_STATUS
 		else status = Auction.ONGOING_STATUS
