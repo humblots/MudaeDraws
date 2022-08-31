@@ -88,14 +88,20 @@ module.exports = {
 		const maxUserEntries = options.getInteger('max-user-entries');
 		const maxEntries = options.getInteger('max-entries');
 		if (maxEntries < maxUserEntries) {
-			await interaction.editReply(
+			return await interaction.editReply(
 				"Le nombres maximum d'entrées doit être supérieur à celui des utilisateurs"
 			);
 		}
 
-		await Guild.findOrCreate({
+		const [guild] = await Guild.findOrCreate({
 			where: { id: interaction.guildId }
 		});
+
+		if (guild.channel === null) {
+			return await interaction.editReply(
+				"Veuillez définir un channel pour l'envoi des résultats avant de créer des enchères (/achannel).")
+			;
+		}
 
 		const userId = interaction.member.id;
 		await User.findOrCreate({
