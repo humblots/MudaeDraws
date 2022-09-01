@@ -12,18 +12,6 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			// define association here
 			this.hasMany(models.Auction, { foreignKey: 'guild_id' });
-			this.hasMany(models.Auction, {
-				scope: { status: Auction.ONGOING_STATUS }, as: 'ongoingAuctions',
-			});
-			this.hasMany(models.Auction, {
-				scope: { status: Auction.PENDING_STATUS }, as: 'pendingAuctions',
-			});
-			this.hasMany(models.Auction, {
-				scope: { status: Auction.CANCELLED_STATUS }, as: 'cancelledAuctions',
-			});
-			this.hasMany(models.Auction, {
-				scope: { status: Auction.FINISHED_STATUS }, as: 'finishedAuctions',
-			});
 		}
 	}
 	Guild.init({
