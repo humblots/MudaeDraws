@@ -14,10 +14,9 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const options = interaction.options;
+		const id = interaction.options.getInteger('id');
 		const member = interaction.member;
 
-		const id = options.getInteger('id');
 		const auction = await Auction.findByPk(id);
 		if (auction === null) {
 			return await interaction.editReply('Enchère introuvable.');

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
+const { Auction } = require('../../models');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,6 +12,32 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(interaction) {
-		await interaction.reply('Incomming auction cancel...');
+		await interaction.deferReply();
+
+		const id = interaction.options.getInteger('id');
+		const member = interaction.member;
+
+		const auction = await Auction.findByPk(id);
+		if (auction === null) {
+			return await interaction.editReply('Enchère introuvable.');
+		}
+
+		if (auction.user_id !== member.id || auction.guild_id !== interaction.guildId) {
+			return await interaction.editReply('Vous n\'avez pas le droit d\'annuler cette enchère.');
+		}
+
+		if (auction.status !== Auction.ONGOING_STATUS) {
+			return await interaction.editReply('Cette enchère ne peut pas être annulée.');
+		}
+
+		auction.status = Auction.CANCELLED_STATUS;
+		await auction.save();
+
+		const participations = auction.getAuctionParticipation();
+		if (participations === null) {
+			// TOODO
+			return await interaction.editReply('TODO ask for refund');
+		}
+		await interaction.editReply('Enchère annulée.');
 	},
 };
