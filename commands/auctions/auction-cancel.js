@@ -33,8 +33,9 @@ module.exports = {
 		auction.status = Auction.CANCELLED_STATUS;
 		await auction.save();
 
-		const participations = auction.getAuctionParticipation();
-		if (participations === null) {
+		const participations = await auction.getAuctionParticipations();
+
+		if (participations.length) {
 			// TOODO
 			return await interaction.editReply('TODO ask for refund');
 		}
