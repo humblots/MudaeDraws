@@ -4,7 +4,8 @@ const { Auction } = require('../models');
 const { getMember } = require("./discord-getters");
 
 
-const auctionListEmbed = async (count, rows, guild) => {
+const auctionListEmbed = async (pagination, rows, guild) => {
+    const {count, limit, offset} = pagination;
     const embed = new EmbedBuilder();
     embed.setAuthor({
         name: `Liste des enchères de ${guild.name}`,
@@ -16,11 +17,12 @@ const auctionListEmbed = async (count, rows, guild) => {
         addAuctionField(embed, auction, member);
     }
 
-    embed.setFooter({ text: `${guild.name} - total: ${count}`});
+    embed.setFooter({ text: `${guild.name} - page ${Math.floor(offset/limit)+1}/${Math.ceil(count/limit)} - total: ${count}`});
     return embed;
 }
 
-const userAuctionListEmbed = (count, rows, guild, member) => {
+const userAuctionListEmbed = (pagination, rows, guild, member) => {
+    const {count, limit, offset} = pagination;
     const embed = new EmbedBuilder();
     embed.setAuthor({
         name: `Liste des enchères de ${member ? member.displayName : rows[0].user_id}`,
@@ -31,7 +33,7 @@ const userAuctionListEmbed = (count, rows, guild, member) => {
         addAuctionField(embed, auction, member);
     }
     
-    embed.setFooter({ text: `${guild.name} - total: ${count}`});
+    embed.setFooter({ text: `${guild.name} - page ${Math.floor(offset/limit)+1}/${Math.ceil(count/limit)} - total: ${count}`});
     return embed;
 }
 

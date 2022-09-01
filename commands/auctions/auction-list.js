@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Auction } = require('../../models');
 const { auctionListEmbed, userAuctionListEmbed } = require('../../utils/auction-list-embed');
 
@@ -6,10 +6,12 @@ const buttonsRow = () => {
 	return new ActionRowBuilder()
 		.addComponents(
 			new ButtonBuilder()
-				.setCustomId('primary')
+				.setCustomId('auction-list-bwd')
+				.setStyle(ButtonStyle.Secondary)
 				.setLabel('⬅️'),
 			new ButtonBuilder()
-				.setCustomId('primary')
+				.setCustomId('auction-list-fwd')
+				.setStyle(ButtonStyle.Secondary)
 				.setLabel('➡️'),
 		);
 };
@@ -33,21 +35,17 @@ module.exports = {
 					{ name: Auction.FINISHED_STATUS, value: Auction.FINISHED_STATUS },
 				),
 		),
-	/**
-	 * TODO: Better list display with navigation, more filters
-	 */
 	async execute(interaction) {
 		await interaction.deferReply();
-		const options = interaction.options;
+		const {options, channel} = interaction;
 		const status = options.getString('status');
 		const member = options.getMember('user');
 		const guild = interaction.guild;
-		const offset = 1;
 		const limit = 5;
 
 		const filter = {
 			where: { guild_id: guild.id }, order: [['start_date', 'DESC']],
-			offset: offset,
+			offset: 0,
 			limit: limit,
 		};
 		if (member) {
@@ -57,17 +55,48 @@ module.exports = {
 			filter.where.status = status;
 		}
 
-		// Manage it with offset / limit
 		const { count, rows } = await Auction.findAndCountAll(filter);
 
 		if (rows === null || count === 0) {
 			return await interaction.editReply('Aucune enchère retrouvée.');
 		}
 
+		const pagination = {count, limit, offset: filter.offset};
 		const embed = member
-			? userAuctionListEmbed(count, rows, guild, member)
-			: await auctionListEmbed(count, rows, guild);
+			? userAuctionListEmbed(pagination, rows, guild, member)
+			: await auctionListEmbed(pagination, rows, guild);
+		
+		if (count <= limit) {
+			await interaction.editReply({ embeds: [ embed ]});
+		} else {
+			await interaction.editReply({ embeds: [ embed ], components: [ buttonsRow() ] });
 
-		await interaction.editReply({ embeds: [ embed ], rows: [ buttonsRow() ] });
+			const collectorFilter = (btnInt) => {
+				return btnInt.customId === 'auction-list-bwd' || btnInt.customId === 'auction-list-fwd';
+			}
+			const collector = interaction.channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
+			collector.on('collect', async i => {
+				if (i.customId === 'auction-list-bwd') {
+					if (filter.offset - limit < 0) filter.offset = limit * Math.floor(count/limit);
+					else filter.offset -= limit;
+				} else {
+					if (filter.offset + limit >= count) filter.offset = 0;
+					else filter.offset += limit;
+				}
+	
+				const rows = await Auction.findAll(filter);
+	
+				if (rows.length) {
+					return await interaction.editReply('Aucune enchère retrouvée.');
+				}
+
+				const pagination = {count, limit, offset: filter.offset};
+				const embed = member
+					? userAuctionListEmbed(pagination, rows, guild, member)
+					: await auctionListEmbed(pagination, rows, guild);
+	
+				await i.update({ embeds: [embed], components: [buttonsRow()] });
+			});
+		}
 	},
 };
