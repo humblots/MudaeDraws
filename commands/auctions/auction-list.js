@@ -3,6 +3,8 @@ const { Auction } = require('../../models');
 const auctionEmbed = require('../../utils/auction-embed');
 const { auctionListEmbed, userAuctionListEmbed } = require('../../utils/auction-list-embed');
 
+const LIST_LIMIT = 5;
+
 const buttonsRow = () => {
 	return new ActionRowBuilder()
 		.addComponents(
@@ -51,13 +53,11 @@ module.exports = {
 		const status = options.getString('status');
 		const member = options.getMember('user');
 		const view = options.getBoolean('view');
-		const limit = 5;
 
 		const filter = {
 			where: { guild_id: guild.id }, order: [['start_date', 'DESC']],
-			offset: 0,
-			limit: limit,
 		};
+
 		if (member) {
 			filter.where.user_id = member.id;
 		}
@@ -65,38 +65,44 @@ module.exports = {
 			filter.where.status = status;
 		}
 
-		const { count, rows } = await Auction.findAndCountAll(filter);
+		const count = await Auction.count(filter);
 
-		if (rows === null || count === 0) {
+		if (count === 0) {
 			return await interaction.editReply('Aucune enchère retrouvée.');
 		}
 
 		if (view) {
-			let embed = await auctionEmbed(rows[0], guild);
-			if (count === 1) {
-				return await interaction.editReply({embeds: [embed]});
-			}
-			await interaction.editReply({embeds: [embed], components: [buttonsRow()]});
 			let index = 0;
-			const collector = interaction.channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
+			const rows = await Auction.findAll(filter);
+
+			let embed = await auctionEmbed(rows[0], guild, {index, count});
+			if (count === 1) {
+				return await interaction.editReply({embeds: [embed] });
+			}
+
+			await interaction.editReply({embeds: [embed], components: [buttonsRow()]});
+			const collector = channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
 			collector.on('collect', async (i) => {
 				if (i.customId === 'auction-list-bwd') {
 					if (index - 1 < 0) index = count - 1;
 					else index--;
 				} else {
-					if (index +1 > count - 1) index = 0;
+					if (index + 1 >= count) index = 0;
 					else index++;
 				}
-				embed = await auctionEmbed(rows[index], guild);
+				embed = await auctionEmbed(rows[index], guild, {index, count});
 				return await i.update({embeds: [embed], components: [buttonsRow()]});
 			})
 		} else {
-			const pagination = {count, limit, offset: filter.offset};
+			filter.offset = 0;
+			filter.limit = LIST_LIMIT;
+			const rows = await Auction.findAll(filter);
+			const pagination = {count, limit: LIST_LIMIT, offset: filter.offset};
 			const embed = member
 				? userAuctionListEmbed(pagination, rows, guild, member)
 				: await auctionListEmbed(pagination, rows, guild);
 			
-			if (count <= limit) {
+			if (count <= LIST_LIMIT) {
 				await interaction.editReply({ embeds: [ embed ]});
 			} else {
 				await interaction.editReply({ embeds: [ embed ], components: [ buttonsRow() ] });
@@ -104,20 +110,15 @@ module.exports = {
 				const collector = interaction.channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
 				collector.on('collect', async i => {
 					if (i.customId === 'auction-list-bwd') {
-						if (filter.offset - limit < 0) filter.offset = limit * Math.floor(count/limit);
-						else filter.offset -= limit;
+						if (filter.offset - LIST_LIMIT < 0) filter.offset = LIST_LIMIT * Math.floor(count/LIST_LIMIT);
+						else filter.offset -= LIST_LIMIT;
 					} else {
-						if (filter.offset + limit >= count) filter.offset = 0;
-						else filter.offset += limit;
+						if (filter.offset + LIST_LIMIT >= count) filter.offset = 0;
+						else filter.offset += LIST_LIMIT;
 					}
 		
 					const rows = await Auction.findAll(filter);
-		
-					if (rows.length) {
-						return await interaction.editReply('Aucune enchère retrouvée.');
-					}
-	
-					const pagination = {count, limit, offset: filter.offset};
+					const pagination = {count, limit: LIST_LIMIT, offset: filter.offset};
 					const embed = member
 						? userAuctionListEmbed(pagination, rows, guild, member)
 						: await auctionListEmbed(pagination, rows, guild);
