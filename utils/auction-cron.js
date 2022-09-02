@@ -48,9 +48,8 @@ const sendNotification = async (client, auction, message, type) => {
     const channel = await getChannel(guild, guildModel.channel);
     if (channel === null) returns;
 
-    const member = await getMember(guild, auction.user_id);
-    
-    channel.send({content: message, embeds: [auctionEmbed(auction, member)]});
+    const embed = await auctionEmbed(auction, guild)
+    channel.send({content: message, embeds: [embed]});
 }
 
 module.exports = {

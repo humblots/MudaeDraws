@@ -49,8 +49,8 @@ module.exports = {
 	 * TODO: FIX Date format (current is english date e.g. 08/27/2022)
 	 */
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
-		const options = interaction.options;
+		await interaction.deferReply();
+		const {guild, options} = interaction;
 
 		const startDateInput = options.getString('start-date');
 		const createdAt = new moment();
@@ -93,11 +93,11 @@ module.exports = {
 			);
 		}
 
-		const [guild] = await Guild.findOrCreate({
-			where: { id: interaction.guildId }
+		const [guildModel] = await Guild.findOrCreate({
+			where: { id: guild.id }
 		});
 
-		if (guild.channel === null) {
+		if (guildModel.channel === null) {
 			return await interaction.editReply(
 				"Veuillez définir un channel pour l'envoi des résultats avant de créer des enchères (/achannel).")
 			;
@@ -119,7 +119,7 @@ module.exports = {
 		else status = Auction.ONGOING_STATUS
 		
 		const auction = await Auction.create({
-			guild_id: interaction.guildId,
+			guild_id: guild.id,
 			user_id: userId,
 			character: character,
 			img_url: img,
@@ -133,9 +133,7 @@ module.exports = {
 			status: status
 		});
 
-		const member = interaction.guild.members.cache.get(userId);
-		const embed = auctionEmbed(auction, member);
-		await interaction.editReply("Done.");
-		await interaction.followUp({ embeds: [ embed ] });
+		const embed = await auctionEmbed(auction, guild);
+		await interaction.editReply({ embeds: [ embed ] });
 	},
 };

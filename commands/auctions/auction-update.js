@@ -43,9 +43,8 @@ module.exports = {
 	 * TODO: FIX Date format (current is english date e.g. 08/27/2022) and make entries update
 	 */
 	async execute(interaction) {
-		await interaction.deferReply({ ephemeral: true });
-		const options = interaction.options;
-		const member = interaction.member
+		await interaction.deferReply();
+		const {options, guild, member} = interaction;
 
 		const id = options.getInteger('id');
 		const auction = await Auction.findByPk(id);
@@ -107,8 +106,7 @@ module.exports = {
 
 		await auction.save();
 
-		const embed = auctionEmbed(auction, member);
-		await interaction.editReply("Done.");
-		await interaction.followUp({ embeds: [ embed ] });
+		const embed = await auctionEmbed(auction, guild);
+		await interaction.editReply({ embeds: [ embed ] });
 	},
 };

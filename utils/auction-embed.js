@@ -1,11 +1,13 @@
 const { EmbedBuilder } = require('discord.js');
 const { Auction } = require('../models');
 const moment = require('moment');
+const { getMember } = require('./discord-getters');
 
-const auctionEmbed = (auction, member = null) => {
-
+const auctionEmbed = async (auction, guild, pagination = null) => {
     const startDateTimeStamp = moment(auction.start_date).unix();
     const endDateTimeStamp = moment(auction.end_date).unix();
+    const member = await getMember(guild, auction.user_id);
+    const paginationTrace = pagination ? ` - ${pagination.index + 1}/${pagination.count}` : '';
 
     const embed = new EmbedBuilder()
     .setColor(auction.getEmbedColor())
@@ -21,7 +23,8 @@ const auctionEmbed = (auction, member = null) => {
     )
     .setImage(auction.img_url)
     .setFooter({ 
-        text: `Par ${member ? member.displayName : auction.user_id} - id: ${auction.id} - ${auction.status}`, 
+        text: `Par ${member ? member.displayName : auction.user_id}\n`+
+            `id: ${auction.id} - ${auction.status}` + paginationTrace, 
         iconURL: member ? member.user.avatarURL() : null
     });
 

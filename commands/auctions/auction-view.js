@@ -17,18 +17,17 @@ module.exports = {
 	 */
 	async execute(interaction) {
 		await interaction.deferReply();
-		const auctionId = interaction.options.getInteger('id');
-		const guildId = interaction.guildId;
+		const {guild, options} = interaction;
+		const auctionId = options.getInteger('id');
 
-		const auction = await Auction.findOne({where: {id: auctionId, guild_id: guildId}});
+		const auction = await Auction.findOne({where: {id: auctionId, guild_id: guild.id}});
 
 		if (auction === null) {
 			return await interaction.editReply("Enchère introuvable");
 		}
 
 		// To complete with participants visualization
-		const auctionMember = await interaction.guild.members.fetch(auction.user_id);
-		const embed = auctionEmbed(auction, auctionMember);
+		const embed = await auctionEmbed(auction, guild);
 		await interaction.editReply({ embeds: [ embed ] });
 	},
 };
