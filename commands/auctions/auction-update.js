@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription('Update an auction')
 		.setDMPermission(false)
 		.addIntegerOption(option => 
-			option.setName('id')
+			option.setName('auction-id')
 				.setDescription("Auction's id")
 				.setRequired(true)
 		)
@@ -46,7 +46,7 @@ module.exports = {
 		await interaction.deferReply();
 		const {options, guild, member} = interaction;
 
-		const id = options.getInteger('id');
+		const id = options.getInteger('auction-id');
 		const auction = await Auction.findByPk(id);
 		if (auction === null) {
 			return await interaction.editReply('Enchère introuvable.');

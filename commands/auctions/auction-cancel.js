@@ -7,14 +7,14 @@ module.exports = {
 		.setDescription('Cancels an auction')
 		.setDMPermission(false)
 		.addIntegerOption(option =>
-			option.setName('id')
+			option.setName('auction-id')
 				.setDescription('Auction\'s id')
 				.setRequired(true),
 		),
 	async execute(interaction) {
 		await interaction.deferReply();
 
-		const id = interaction.options.getInteger('id');
+		const id = interaction.options.getInteger('auction-id');
 		const member = interaction.member;
 
 		const auction = await Auction.findByPk(id);

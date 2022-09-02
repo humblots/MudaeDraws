@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription('View an auction')
 		.setDMPermission(false)
 		.addIntegerOption(option =>
-			option.setName('id')
+			option.setName('auction-id')
 				.setDescription('Auction\'s id')
 				.setRequired(true),
 		),
@@ -18,7 +18,7 @@ module.exports = {
 	async execute(interaction) {
 		await interaction.deferReply();
 		const {guild, options} = interaction;
-		const auctionId = options.getInteger('id');
+		const auctionId = options.getInteger('auction-id');
 
 		const auction = await Auction.findOne({where: {id: auctionId, guild_id: guild.id}});
 
