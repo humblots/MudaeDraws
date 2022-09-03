@@ -13,6 +13,7 @@ const client = new Client({ intents: [
 ] });
 
 client.commands = new Collection();
+client.buttons = new Collection();
 
 const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
 for (const folder of commandFolders) {
@@ -36,6 +37,19 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(client, ...args));
 	}
 }
+
+/**
+ * Uncomment to handle components
+ */
+//const componentsFolders = fs.readdirSync(path.join(__dirname, 'components'));
+//for (const folder of componentsFolders) {
+//	const componentsPath = path.join(__dirname, 'components', folder);
+//	const componentsFiles = fs.readdirSync(componentsPath).filter(file => file.endsWith('.js'));
+//	for (const file of componentsFiles) {
+//		const component = require(path.join(componentsPath, file));
+//		client[folder].set(component.data.name, component);
+//	}
+//}
 
 // Login to Discord with your client's token
 client.login(TOKEN);
