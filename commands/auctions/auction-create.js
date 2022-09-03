@@ -87,19 +87,11 @@ module.exports = {
 			);  
 		}
 
-		const maxEntries = options.getInteger('max-entries');
-		auction.max_entries = maxEntries;
-		
 		const maxUserEntries = options.getInteger('max-user-entries');
-		if (maxUserEntries === null) {
-			auction.max_user_entries = null
-		}
-		else if (auction.max_entries === null) {
-			auction.max_user_entries = maxUserEntries;
-		} 
-		else if (maxUserEntries > auction.max_entries) {
+		const maxEntries = options.getInteger('max-entries');
+		if (maxEntries && maxEntries < maxUserEntries) {
 			return await interaction.editReply(
-				"Le nombre maximal d'entrées par utilisateur doit être inférieur aux nombre d'entrées maximale total de l'enchère."
+				"Le nombres maximum d'entrées doit être supérieur à celui des utilisateurs"
 			);
 		}
 
