@@ -6,7 +6,11 @@ module.exports = {
 			const command = client.commands.get(commandName);
 			if (!command) return;
 			
-			command.execute(interaction);
+			try {
+				command.execute(interaction);
+			} catch(e) {
+				console.log(e);
+			}
 		}
 	},
 };
