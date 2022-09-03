@@ -65,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
     max_user_entries: DataTypes.INTEGER,
     start_date: { type: DataTypes.DATE, allowNull: false },
     end_date: DataTypes.DATE,
-    created_at: { type: DataTypes.DATE, allowNull: false},
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: new Date()},
     updated_at: DataTypes.DATE,
     status: { type: DataTypes.STRING, allowNull: false }
   }, {

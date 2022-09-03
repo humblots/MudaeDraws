@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     auction_id: { type: DataTypes.INTEGER, allowNull: false},
     user_id: { type: DataTypes.INTEGER, allowNull: false},
     entries: { type: DataTypes.INTEGER, allowNull: false },
-    created_at: { type: DataTypes.DATE, allowNull: false},
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: new Date()},
     updated_at: DataTypes.DATE,
   }, {
     sequelize,

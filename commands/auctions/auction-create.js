@@ -3,6 +3,8 @@ const { User, Auction, Guild } = require('../../models');
 const moment = require('moment');
 const auctionEmbed  = require('../../utils/auction-embed');
 
+const urlRegExp = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('acreate')
@@ -58,13 +60,13 @@ module.exports = {
 		
 		if (!startDate.isValid()) {
 			return await interaction.editReply(
-				"Le format de la date de début est incorrect, création impossible"
+				"Le format de la date de début est incorrect"
 			);
 		}
 		
 		if (createdAt.isAfter(startDate)) {
 			return await interaction.editReply(
-				"La date de début est dépassée, création impossible"
+				"La date de début est dépassée"
 			);
 		}
 
@@ -75,13 +77,13 @@ module.exports = {
 	
 		if (!endDate.isValid()) {
 			return await interaction.editReply(
-				"Le format de la date de fin est incorrect, création impossible"
+				"Le format de la date de fin est incorrect"
 			);
 		}
 			
 		if (startDate.isAfter(endDate)) {
 			return await interaction.editReply( 
-				"La date de fin doit avoir lieu après celle de début, création impossible"
+				"La date de fin doit avoir lieu après celle de début"
 			);  
 		}
 
@@ -93,14 +95,23 @@ module.exports = {
 			);
 		}
 
+		const img = options.getString('image');
+		if (!img.match(urlRegExp)) {
+			return await interaction.editReply(
+				"Le format de l'url de l'image est incorrect"
+			);
+		}
+
 		const [guildModel] = await Guild.findOrCreate({
 			where: { id: guild.id }
 		});
 
-		if (guildModel.channel === null) {
+		console.log(guildModel.channel);
+
+		if (!guildModel.channel) {
 			return await interaction.editReply(
-				"Veuillez définir un channel pour l'envoi des résultats avant de créer des enchères (/achannel).")
-			;
+				"Veuillez définir un channel pour l'envoi des résultats avant de créer des enchères (/achannel)."
+			);
 		}
 
 		const userId = interaction.member.id;
@@ -112,7 +123,6 @@ module.exports = {
 		});
 
 		const character = options.getString('character');
-		const img = options.getString('image');
 		const price = options.getInteger('entry-price');
 		let status;
 		if (createdAt.isBefore(startDate)) status = Auction.PENDING_STATUS

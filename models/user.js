@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init({
     id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
+    occupied: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
     created_at: { type: DataTypes.DATE, allowNull: false }
   }, {
     sequelize,

@@ -1,6 +1,6 @@
 const { Auction, Guild } = require('../models');
 const { Op } = require('sequelize');
-const { getGuild, getMember, getChannel } = require('./discord-getters');
+const { getGuild, getChannel } = require('./discord-getters');
 const auctionEmbed = require('./auction-embed');
 
 const updateStatus = async (client) => {
@@ -43,10 +43,10 @@ const sendNotification = async (client, auction, message, type) => {
     const guildModel = await auction.getGuild();
 
     const guild = await getGuild(client, guildId);
-    if (guild === null) return;
+    if (!guild) return;
 
     const channel = await getChannel(guild, guildModel.channel);
-    if (channel === null) returns;
+    if (!channel) return;
 
     const embed = await auctionEmbed(auction, guild)
     channel.send({content: message, embeds: [embed]});

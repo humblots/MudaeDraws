@@ -7,9 +7,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.STRING
       },
+      occupied: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: new Date()
       }
     });
   },

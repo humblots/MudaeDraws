@@ -1,21 +1,35 @@
-const { SlashCommandBuilder, MessageCollector } = require('discord.js');
-const { Auction, AuctionParticipation } = require('../../models');
+const { SlashCommandBuilder } = require('discord.js');
+const { Auction, AuctionParticipation, User } = require('../../models');
+const moment = require('moment');
+
+const exitWord = 'exit';
 
 const buyingProcess = async (channel, member, auction, amount) => {
-	await awaitGivek(channel, member, auction, amount);
-	await awaitValidation(channel, member, auction, amount);
+	try {
+		await awaitGivek(channel, member, auction, amount);
+		await awaitValidation(channel, member, auction, amount);
+	} catch(e) {
+		throw e;
+	}
 }
 
 const awaitGivek = async (channel, member, auction, amount) => {
 	const command = "$givek";
-	const filter = m => (m.content.startsWith(command) && m.author.id === member.id)
+	const filter = m => (
+		(m.content.toLowerCase().startsWith(command) || m.content.toLowerCase() === exitWord) && 
+		m.author.id === member.id
+	)
+
 	const collector = channel.createMessageCollector({filter, time: 20 * 1000});
-	
 	return new Promise((resolve, reject) => {
 		collector.on('collect', m => {
 			collector.resetTimer({time : 20 * 1000});
 			let args = m.content.substring(command.length).trim().split(/\s+/);
 	
+			if (m.content.toLowerCase() === exitWord) {
+				return collector.stop('end');
+			}
+
 			if (args[0] !== auction.user_id) {
 				m.react('❌');
 				return channel.send("Vérifiez l'id");
@@ -32,7 +46,8 @@ const awaitGivek = async (channel, member, auction, amount) => {
 		})
 
 		collector.on('end', (collected, reason) => {
-           if (reason == 'time') reject("Temps écoulé");
+           if (reason === 'time') reject("Temps écoulé");
+		   if (reason === 'end') reject("Opération annulée")
        });
 	})
 }
@@ -40,19 +55,20 @@ const awaitGivek = async (channel, member, auction, amount) => {
 const awaitValidation = async (channel, member, auction, amount) => {
     const okChoices = ['oui', 'yes', 'o', 'y'];
 	const cancelChoices = ['no', 'n'];
-	const filter = m => (okChoices.concat(cancelChoices).includes(m.content.trim().toLowerCase()) && m.author.id === member.id)
+	const filter = m => (
+		okChoices.concat(cancelChoices).includes(m.content.toLowerCase()) || m.content.toLowerCase() === exitWord &&
+	 	m.author.id === member.id
+	)
 
 	const collector = channel.createMessageCollector({filter, time: 15 * 1000});
 	return new Promise((resolve, reject) => {
 		collector.on('collect', m => {
 			const choice = m.content.trim().toLowerCase();
 			if (okChoices.includes(choice)) {
-				console.log('received good choice')
-				collector.stop('confirmed');
+				return collector.stop('confirmed');
 			}
-			if (cancelChoices.includes(choice)) {
-				reject("givek stoppé");
-				collector.stop('end');
+			if (cancelChoices.includes(choice) || choice === exitWord) {
+				return collector.stop('end');
 			}
 		});
 
@@ -77,7 +93,8 @@ const awaitValidation = async (channel, member, auction, amount) => {
 				})
 			}
 
-            if(reason == 'time') reject("Temps écoulé");
+            if(reason === 'time') reject("Temps écoulé");
+			if (reason === 'end') reject("Opération annulée")
         })
 	})
 
@@ -105,18 +122,22 @@ module.exports = {
 		const entries = options.getInteger('entries');
 		let userParticipation;
 
-		const auction = await Auction.findByPk(id);
+		const [user] = await User.findOrCreate({where: {id: member.id}});
 
+		if (user.occupied) {
+			return await interaction.followUp('Vous avez déjà une opération en cours...');
+		}
+
+		const auction = await Auction.findByPk(id);
 		if (auction === null) {
 			return await interaction.editReply('Enchère introuvable.');
 		}
-
-		if (auction.status !== Auction.ONGOING_STATUS);
-
+		if (auction.status !== Auction.ONGOING_STATUS) {
+			return await interaction.editReply("Cette enchère n'a pas encore commencé.")
+		}
 		if (auction.user_id === member.id) {
 			return await interaction.editReply('Cette enchère vous appartient.');
 		}
-
 		if (auction.max_entries !== null || auction.max_user_entries !== null) {
 			userParticipation = await AuctionParticipation.findOne({where: {user_id: member.id, auction_id: id}});
 			if (auction.max_user_entries) {
@@ -125,18 +146,18 @@ module.exports = {
 					(userParticipation && (userParticipation.entries + entries > auction.max_user_entries))
 				) {
 					return await  interaction.editReply(
-						"Le nombre d'entrées que vous souhaitez acheter dépasse la limite autorisée par utilisateur pour cette enchère"
+						"Le nombre d'entrées que vous souhaitez acheter dépasse la limite autorisée par utilisateur pour cette enchère."
 					);
 				}
 			}
-
+			
 			if (auction.max_entries) {
 				const participationsCount = await AuctionParticipation.sum('entries', {where: {auction_id: id}});
 				if (
 					entries > auction.max_entries ||
 					(userParticipation && (participationsCount + entries > auction.max_entries))
 				) {
-					return await interaction.editReply("Le nombre d'entrées que vous souhaitez acheter dépasse la limite autorisée pour cette enchère");
+					return await interaction.editReply("Le nombre d'entrées que vous souhaitez acheter dépasse la limite autorisée pour cette enchère.");
 				}
 			}
 		}
@@ -144,12 +165,16 @@ module.exports = {
 		const amount = entries * (auction.entry_price || Auction.DEFAULT_PRICE);
 		await interaction.editReply(
 			`Pour confirmer votre achat, tapez la commande: \`$givek ${auction.user_id} ${amount}\`\n` +
-			`Une fois la commande validée, votre achat sera effectif.`
+			`Une fois la commande validée, votre achat sera effectif.:\n` +
+			`Pour annuler l'opération, taper \`${exitWord}\`.`
 		)
 		
+		await user.update({occupied: true});
+
 		buyingProcess(channel, member, auction, amount).then(async () => {
+			await user.update({occupied: false});
 			if (moment(auction.end_date).isBefore(moment())) {
-				return await interaction.followUp({content: "L'enchère a eu le temps de se terminer, dommage pour vous ¯\\_(ツ)_/¯"});
+				return await interaction.followUp({content: "L'enchère a eu le temps de se terminer, dommage pour vous. ¯\\_(ツ)_/¯"});
 			}
 
 			[userParticipation, created] = await AuctionParticipation.findOrCreate({
@@ -170,7 +195,8 @@ module.exports = {
 			
 			await interaction.followUp({content: 'Achat effectué !'});
 		}).catch(async e => {
-			await interaction.followUp({content: "Achat annulé"});
+			await user.update({occupied: false});
+			await interaction.followUp({content: e + ", achat annulé."});
 		})
 	},
 };
