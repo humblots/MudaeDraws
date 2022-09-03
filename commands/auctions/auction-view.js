@@ -54,7 +54,7 @@ module.exports = {
 			return await i.update(aMessage);
 		});
 
-		collector.on('end', collected => {
+		collector.on('end', () => {
 			interaction.editReply({ components: []});
 		})
 	},

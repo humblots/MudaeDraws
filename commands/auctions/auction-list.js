@@ -71,6 +71,7 @@ module.exports = {
 			return await interaction.editReply('Aucune enchère retrouvée.');
 		}
 
+		let collector;
 		if (view) {
 			let index = 0;
 			const rows = await Auction.findAll(filter);
@@ -81,7 +82,7 @@ module.exports = {
 			}
 
 			await interaction.editReply({embeds: [embed], components: [buttonsRow()]});
-			const collector = channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
+			collector = channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
 			collector.on('collect', async (i) => {
 				if (i.customId === 'auction-list-bwd') {
 					if (index - 1 < 0) index = count - 1;
@@ -107,7 +108,7 @@ module.exports = {
 			} else {
 				await interaction.editReply({ embeds: [ embed ], components: [ buttonsRow() ] });
 	
-				const collector = interaction.channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
+				collector = interaction.channel.createMessageComponentCollector({ collectorFilter, time: 60 * 1000 });
 				collector.on('collect', async i => {
 					if (i.customId === 'auction-list-bwd') {
 						if (filter.offset - LIST_LIMIT < 0) filter.offset = LIST_LIMIT * Math.floor(count/LIST_LIMIT);
@@ -127,5 +128,8 @@ module.exports = {
 				});
 			}
 		}
+		collector.on('end', () => {
+			interaction.editReply({components: []});
+		})
 	},
 };
