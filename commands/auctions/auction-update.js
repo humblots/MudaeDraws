@@ -56,7 +56,7 @@ module.exports = {
 			return await interaction.editReply("Vous n'avez pas le droit d'éditer cette enchère.");
 		}
 
-		if (auction.status === Auction.CANCELLED_STATUS || auction.status === Auction.FINISHED_STATUS) {
+		if (auction.status !== Auction.PENDING_STATUS) {
 			return await interaction.editReply("Cette enchère ne peut plus être éditée.");
 		}
 
@@ -75,7 +75,7 @@ module.exports = {
 
 		// Start Date handling
 		const startDateInput = options.getString('start-date');
-		if (auction.status === Auction.PENDING_STATUS && startDateInput) {
+		if (startDateInput) {
 			const startDate = moment(startDateInput);
 			if ( !startDate.isValid() ) {
 				return await interaction.editReply("La nouvelle date de début est invalide.");
@@ -100,9 +100,21 @@ module.exports = {
 			auction.entry_price = price;
 		}
 
-		// TODO: manage entries from what's already in db if auctions has participants
-		const maxUserEntries = options.getInteger('max-user-entries');
 		const maxEntries = options.getInteger('max-entries');
+		auction.max_entries = maxEntries;
+		
+		const maxUserEntries = options.getInteger('max-user-entries');
+		if (maxUserEntries === null) {
+			auction.max_user_entries = null
+		}
+		else if (auction.max_entries === null) {
+			auction.max_user_entries = maxUserEntries;
+		} 
+		else if (maxUserEntries > auction.max_entries) {
+			return await interaction.editReply(
+				"Le nombre maximal d'entrées par utilisateur doit être inférieur aux nombre d'entrées maximale total de l'enchère."
+			);
+		}
 
 		await auction.save();
 
