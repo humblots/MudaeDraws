@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Auction, AuctionParticipation } = require('../../models');
-const auctionEmbed = require('../../utils/auction-embed');
-const participationsEmbed = require('../../utils/participations-embed');
+const {auctionEmbed, participationsEmbed} = require('../../utils/embeds');
 
 const buttonsRow = (label) => {
 	return new ActionRowBuilder()

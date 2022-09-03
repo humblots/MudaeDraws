@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { Auction } = require('../../models');
-const auctionEmbed = require('../../utils/auction-embed');
+const { auctionEmbed } = require('../../utils/embeds');
 
 module.exports = {
 	data: new SlashCommandBuilder()

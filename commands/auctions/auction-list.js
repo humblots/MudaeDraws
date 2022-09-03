@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { Auction } = require('../../models');
-const auctionEmbed = require('../../utils/auction-embed');
-const { auctionListEmbed, userAuctionListEmbed } = require('../../utils/auction-list-embed');
+const { auctionEmbed, auctionListEmbed, userAuctionListEmbed } = require('../../utils/embeds');
 
 const LIST_LIMIT = 5;
 

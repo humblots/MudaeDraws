@@ -13,7 +13,7 @@ module.exports = {
 	name: 'ready',
 	once: true,
 	execute(client) {
-		client.user.setPresence({activities: [{name: `>help` , type: 'PLAYING'}], status: 'online'});
+		client.user.setPresence({activities: [{name: `${DEFAULT_PREFIX}help` , type: 'PLAYING'}], status: 'online'});
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		new CronJob(
 			'0 * * * * *',

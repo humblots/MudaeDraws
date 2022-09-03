@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { User, Auction, Guild } = require('../../models');
 const moment = require('moment');
-const auctionEmbed  = require('../../utils/auction-embed');
+const { auctionEmbed }  = require('../../utils/embeds');
 
 const urlRegExp = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
 
