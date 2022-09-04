@@ -24,6 +24,13 @@ module.exports = {
         },
         allowNull: false
       },
+      winner_id: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+      },
       character: {
         type: Sequelize.STRING,
         allowNull: false

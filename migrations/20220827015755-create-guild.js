@@ -12,6 +12,9 @@ module.exports = {
       },
       channel: {
         type: Sequelize.STRING
+      },
+      role: {
+        type: Sequelize.STRING
       }
     });
   },
