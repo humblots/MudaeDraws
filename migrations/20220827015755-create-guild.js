@@ -8,13 +8,16 @@ module.exports = {
         type: Sequelize.STRING
       },
       prefix: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: null
       },
       channel: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: null
       },
       role: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue: null
       }
     });
   },

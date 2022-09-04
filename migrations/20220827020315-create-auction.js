@@ -30,6 +30,7 @@ module.exports = {
           model: 'users',
           key: 'id'
         },
+        defaultValue: null
       },
       character: {
         type: Sequelize.STRING,

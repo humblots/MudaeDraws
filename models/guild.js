@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
 	}
 	Guild.init({
 		id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
-		prefix: DataTypes.STRING,
-		channel: DataTypes.STRING,
-		role: DataTypes.STRING
+		prefix: { type: DataTypes.STRING, defaultValue: null },
+		channel: { type: DataTypes.STRING, defaultValue: null },
+		role: { type: DataTypes.STRING, defaultValue: null }
 	}, {
 		sequelize,
 		modelName: 'Guild',
