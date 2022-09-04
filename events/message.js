@@ -27,7 +27,7 @@ module.exports = {
 		if (command.permissions) {
 			const authorPerms = message.channel.permissionsFor(message.author);
 			if (!authorPerms || !authorPerms.has(command.permissions)) {
-				return message.reply('Vous n\'avez pas les droits !');
+				return message.reply('Tu n\'as pas les droits !');
 			}
 		}
 
