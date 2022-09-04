@@ -1,5 +1,6 @@
 const { Auction, AuctionParticipation, Guild } = require('../models');
 const { Op } = require('sequelize');
+const sequelize = require('sequelize');
 const { getGuild, getChannel } = require('./discord-getters');
 const {auctionEmbed, winnerEmbed} = require('./embeds');
 
@@ -68,7 +69,7 @@ const pickWinners = async (client) => {
         const message = `${ auction.Guild.role ? '<@&'+ auction.Guild.role +'>' : ''}`+
             ` L'enchère pour **${auction.character}** vient de se terminer !`;
 
-        const participations = await auction.getAuctionParticipations();
+        const participations = await auction.getAuctionParticipations({order: [sequelize.fn('RAND')]});
         if (!participations.length) {
             channel.send(message + "\nMalheureusement, personne n'y a participé...");
             continue;

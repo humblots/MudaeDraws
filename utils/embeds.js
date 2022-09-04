@@ -129,8 +129,7 @@ const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
         .setDescription(
             `**Nombre d'entrées:** ${winnerEntries}\n` +
             `**Total dépensé:** ${winnerEntries * (auction.entry_price || Auction.DEFAULT_PRICE)}\n` +
-            `Faites-un signe à l'organisateur ` +
-            `pour récupérer votre gain`
+            `Faites-un signe à l'organisateur pour récupérer votre gain`
         )
         .setImage(auction.img_url)
         .setFooter({ 
