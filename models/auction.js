@@ -58,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
   Auction.init({
     guild_id: { type: DataTypes.STRING, allowNull: false },
     user_id: { type: DataTypes.STRING, allowNull: false },
+    winner_id: DataTypes.STRING,
     character: { type: DataTypes.STRING, allowNull: false },
     img_url: { type: DataTypes.TEXT, allowNull: false },
     entry_price: DataTypes.INTEGER,

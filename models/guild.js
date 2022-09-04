@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 		id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
 		prefix: DataTypes.STRING,
 		channel: DataTypes.STRING,
+		role: DataTypes.STRING
 	}, {
 		sequelize,
 		modelName: 'Guild',
