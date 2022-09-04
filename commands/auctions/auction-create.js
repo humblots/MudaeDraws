@@ -144,6 +144,10 @@ module.exports = {
 		});
 
 		const embed = await auctionEmbed(auction, guild);
-		await interaction.editReply({ embeds: [ embed ] });
+		await interaction.editReply({ 
+			content:`${ guildModel.role ? '<@&'+ guildModel.role +'>' : ''}` +
+				` Une nouvelle enchère vient d'être créée`,
+			embeds: [ embed ] 
+		});
 	},
 };
