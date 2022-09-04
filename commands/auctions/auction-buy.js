@@ -138,7 +138,7 @@ module.exports = {
 			return await interaction.editReply('Enchère introuvable.');
 		}
 		if (auction.status !== Auction.ONGOING_STATUS) {
-			return await interaction.editReply("Cette enchère n'a pas encore commencé.")
+			return await interaction.editReply("Cette enchère n'accepte pas de participation.")
 		}
 		if (auction.user_id === member.id) {
 			return await interaction.editReply('Cette enchère vous appartient.');
