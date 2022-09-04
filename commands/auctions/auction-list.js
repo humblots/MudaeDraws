@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { Auction } = require('../../models');
-const { auctionEmbed, auctionListEmbed, userAuctionListEmbed } = require('../../utils/embeds');
+const { Auction, AuctionParticipation } = require('../../models');
+const { auctionEmbed, auctionListEmbed, userAuctionListEmbed, winnerEmbed } = require('../../utils/embeds');
 
 const LIST_LIMIT = 5;
 
@@ -17,6 +17,16 @@ const buttonsRow = () => {
 				.setLabel('➡️'),
 		);
 };
+
+const getProperEmbed = async (auction, guild) => {
+	let embed;
+	if (auction.winner_id) {
+		const participation = await AuctionParticipation.findOne({where: {user_id: auction.winner_id}});
+		embed = await winnerEmbed(auction, guild, auction.winner_id, participation.entries);
+	}
+	else embed = await auctionEmbed(auction, guild);
+	return embed;
+}
 
 const collectorFilter = (btnInt) => {
 	return btnInt.customId === 'auction-list-bwd' || btnInt.customId === 'auction-list-fwd';
@@ -74,8 +84,8 @@ module.exports = {
 		if (view) {
 			let index = 0;
 			const rows = await Auction.findAll(filter);
-
-			let embed = await auctionEmbed(rows[0], guild, {index, count});
+			let auction = rows[index];
+			let embed = await getProperEmbed(auction, guild);
 			if (count === 1) {
 				return await interaction.editReply({embeds: [embed] });
 			}
@@ -90,9 +100,13 @@ module.exports = {
 					if (index + 1 >= count) index = 0;
 					else index++;
 				}
-				embed = await auctionEmbed(rows[index], guild, {index, count});
+
+				embed = await getProperEmbed(rows[index], guild);
 				return await i.update({embeds: [embed], components: [buttonsRow()]});
-			})
+			});
+			collector.on('end', () => {
+				interaction.editReply({components: []});
+			});
 		} else {
 			filter.offset = 0;
 			filter.limit = LIST_LIMIT;
@@ -125,10 +139,10 @@ module.exports = {
 		
 					await i.update({ embeds: [embed], components: [buttonsRow()] });
 				});
+				collector.on('end', () => {
+					interaction.editReply({components: []});
+				});
 			}
 		}
-		collector.on('end', () => {
-			interaction.editReply({components: []});
-		})
 	},
 };

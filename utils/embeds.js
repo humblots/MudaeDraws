@@ -80,7 +80,7 @@ const _addAuctionField = (embed, auction, member) => {
     });
 }
 
-const participationsEmbed = async (auction, participations, guild) => {
+const participationsEmbed = async (auction, guild, participations, entriesSum) => {
     const auctionMember = await getMember(guild, auction.user_id);
     const embed = new EmbedBuilder()
     .setColor(auction.getEmbedColor())
@@ -96,10 +96,8 @@ const participationsEmbed = async (auction, participations, guild) => {
         return embed;
     }
 
-    let sum = 0;
     for (const participation of participations) {
         const member = await getMember(guild, participation.user_id);
-        sum += participation.entries;
         embed.addFields(
             {
                 name: member ? member.displayName : participation.user_id,
@@ -110,7 +108,7 @@ const participationsEmbed = async (auction, participations, guild) => {
     }
 
     if (auction.max_entries) {
-        embed.setDescription(`**Nombre d'entrées restantes: ${auction.max_entries - sum}**`);
+        embed.setDescription(`**Nombre d'entrées restantes: ${auction.max_entries - entriesSum}**`);
     } else {
         embed.setDescription(`**Nombre d'entrées restantes: ∞**`);
     }
@@ -119,8 +117,31 @@ const participationsEmbed = async (auction, participations, guild) => {
 }
 
 
-const winnerEmbed = () => {
-    new EmbedBuilder();
+const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
+
+    const winner = await getMember(guild, winnerId);
+    const auctionMember = await getMember(guild, auction.user_id);
+
+    const embed = new EmbedBuilder()
+        .setAuthor({ name: `Enchère pour ${auction.character}`, iconURL: guild.iconURL()})
+        .setColor(auction.getEmbedColor())
+        .setTitle(`Le vainqueur est ${winner ? winner.displayName : auction.user_id} !`)
+        .setDescription(
+            `**Nombre d'entrées:** ${winnerEntries}\n` +
+            `**Total dépensé:** ${winnerEntries * (auction.entry_price || Auction.DEFAULT_PRICE)}`
+        )
+        .setImage(auction.img_url)
+        .setFooter({ 
+            text: `Par ${auctionMember ? auctionMember.displayName : auction.user_id}\n`+
+                `id: ${auction.id} - ${auction.status}`, 
+            iconURL: auctionMember ? auctionMember.user.avatarURL() : null
+        });
+
+    if (winner) {
+        embed.setThumbnail(winner.user.avatarURL());
+    }
+
+    return embed;
 }
 
 module.exports = {
