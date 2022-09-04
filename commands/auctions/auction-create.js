@@ -68,6 +68,7 @@ module.exports = {
 
         const startDateInput = options.getString("start-date");
         const createdAt = new moment();
+		createdAt.seconds(0);
         const startDate = startDateInput ?
             moment(startDateInput, "DD/MM/YYYY h:mm") :
             createdAt.clone();
