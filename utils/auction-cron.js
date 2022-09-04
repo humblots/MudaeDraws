@@ -5,13 +5,14 @@ const { getGuild, getChannel } = require('./discord-getters');
 const {auctionEmbed, winnerEmbed} = require('./embeds');
 
 const updateStatus = async (client) => {
+    const now = new Date();
     const auctions = await Auction.findAll({
         where: {
             start_date : {
-                [Op.lte] : new Date()
+                [Op.lte] : now
             },
             end_date : {
-                [Op.gt] : new Date()
+                [Op.gt] : now
             },
             status : Auction.PENDING_STATUS
         },

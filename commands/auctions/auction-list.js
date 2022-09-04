@@ -56,7 +56,7 @@ module.exports = {
 				.setDescription('View list auction per auction')
 
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {options, channel, guild} = interaction;
 		const status = options.getString('status');

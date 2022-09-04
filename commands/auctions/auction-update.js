@@ -18,11 +18,11 @@ module.exports = {
 		)
 		.addStringOption(option => 
 			option.setName('start-date')	
-				.setDescription('Date, Timestamp... (e.g: 24-07-2022 15:30:00)')
+				.setDescription('Date, Timestamp... (e.g: 24/07/2022 15:30)')
 		)
 		.addStringOption(option => 
 			option.setName('end-date')
-				.setDescription('Date, Timestamp... (e.g: 24-07-2022 15:30:00)')
+				.setDescription('Date, Timestamp... (e.g: 24/07/2022 15:30)')
 		)
 		.addIntegerOption(option =>
 			option.setName('entry-price')
@@ -39,10 +39,7 @@ module.exports = {
 				.setDescription('Max number of entries for the auction, unlimited by default')
 				.setMinValue(1),
 		),
-	/**
-	 * TODO: FIX Date format (current is english date e.g. 08/27/2022) and make entries update
-	 */
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {options, guild, member} = interaction;
 
@@ -63,11 +60,11 @@ module.exports = {
 		// End Date handling
 		const endDateInput = options.getString('end-date');
 		if (endDateInput) {
-			const endDate = moment(endDateInput);
+			const endDate = moment(endDateInput, "DD/MM/YYYY h:mm");
 			if ( !endDate.isValid() ) {
 				return await interaction.editReply("La nouvelle date de fin est invalide.");
 			}
-			if (startDate.isBefore(moment())) {
+			if (endDate.isBefore(moment())) {
 				return await interaction.editReply("La nouvelle date de fin ne peut pas être dans le passé.");
 			}
 			auction.end_date = endDate.toDate();
@@ -76,14 +73,14 @@ module.exports = {
 		// Start Date handling
 		const startDateInput = options.getString('start-date');
 		if (startDateInput) {
-			const startDate = moment(startDateInput);
+			const startDate = moment(startDateInput, "DD/MM/YYYY h:mm");
 			if ( !startDate.isValid() ) {
 				return await interaction.editReply("La nouvelle date de début est invalide.");
 			}
 			if (startDate.isBefore(moment())) {
 				return await interaction.editReply("La nouvelle date de début ne peut pas être dans le passé.");
 			}
-			if (startDate.isAfter(moment(auction.end_date))) {
+			if (startDate.isSameOrAfter(moment(auction.end_date))) {
 				return await interaction.editReply(
 					"La nouvelle date de début ne peut pas avoir lieu après la date de fin."
 				);

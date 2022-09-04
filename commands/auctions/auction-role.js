@@ -4,14 +4,14 @@ const { Guild } = require('../../models');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('arole')
-		.setDescription('Set a role for for different mentions')
+		.setDescription('Set a role for different mentions')
 		.setDMPermission(false)
 		.addRoleOption(option =>
 			option.setName('role')
 				.setDescription("Role for mentions")
 				.setRequired(true),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
         const role = interaction.options.getRole('role');
 
         const [guild] = await Guild.findOrCreate({

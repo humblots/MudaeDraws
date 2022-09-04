@@ -11,7 +11,7 @@ module.exports = {
 				.setDescription('Auction\'s id')
 				.setRequired(true),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {options, member} = interaction
 		const id = options.getInteger('auction-id');

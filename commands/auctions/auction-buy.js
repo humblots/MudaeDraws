@@ -118,9 +118,10 @@ module.exports = {
 		.addIntegerOption(option =>
 			option.setName('entries')
 				.setDescription('Number of entries to buy')
+				.setMinValue(1)
 				.setRequired(true),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {options, member, channel} = interaction;
 		const id = options.getInteger('auction-id');
@@ -157,10 +158,10 @@ module.exports = {
 			}
 			
 			if (auction.max_entries) {
-				const participationsCount = await AuctionParticipation.sum('entries', {where: {auction_id: id}});
+				const entriesSum = await AuctionParticipation.sum('entries', {where: {auction_id: id}});
 				if (
 					entries > auction.max_entries ||
-					(userParticipation && (participationsCount + entries > auction.max_entries))
+					(userParticipation && (entriesSum + entries > auction.max_entries))
 				) {
 					return await interaction.editReply("Le nombre d'entrées que vous souhaitez acheter dépasse la limite autorisée pour cette enchère.");
 				}

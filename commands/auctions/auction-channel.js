@@ -11,7 +11,7 @@ module.exports = {
 				.setDescription("Auction's channel")
 				.setRequired(true),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
         const channel = interaction.options.getChannel('channel');
 
         const [guild] = await Guild.findOrCreate({

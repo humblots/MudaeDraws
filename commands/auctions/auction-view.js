@@ -23,7 +23,7 @@ module.exports = {
 				.setDescription('Auction\'s id')
 				.setRequired(true),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {guild, options} = interaction;
 		const auctionId = options.getInteger('auction-id');

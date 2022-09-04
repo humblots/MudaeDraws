@@ -23,12 +23,12 @@ module.exports = {
 		)
 		.addStringOption(option => 
 			option.setName('start-date')
-				.setDescription('Date, Timestamp... (e.g: 24-07-2022 15:30:00). Now by default'),
+				.setDescription('Date, Timestamp... (e.g: 24/07/2022 15:30). Now by default'),
 		)
 		.addStringOption(option =>
 			option.setName('end-date')
 				.setDescription(
-					`Date, Timestamp... (e.g:24-07-2022 15:30:00). ${Auction.DEFAULT_END_AFTER} day(s) after start by default`
+					`Date, Timestamp... (e.g:24/07/2022 15:30). ${Auction.DEFAULT_END_AFTER} day(s) after start by default`
 				),
 		)
 		.addIntegerOption(option =>
@@ -50,13 +50,13 @@ module.exports = {
 	/**
 	 * TODO: FIX Date format (current is english date e.g. 08/27/2022)
 	 */
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const {guild, options} = interaction;
 
 		const startDateInput = options.getString('start-date');
 		const createdAt = new moment();
-		const startDate = startDateInput ? moment(startDateInput) : createdAt.clone();
+		const startDate = startDateInput ? moment(startDateInput, "DD/MM/YYYY h:mm") : createdAt.clone();
 		
 		if (!startDate.isValid()) {
 			return await interaction.editReply(
@@ -72,7 +72,7 @@ module.exports = {
 
 		const endDateInput = options.getString('end-date');
 		const endDate = endDateInput 
-			? moment(endDateInput)
+			? moment(endDateInput, "DD/MM/YYYY h:mm")
 			: startDate.clone().add(Auction.DEFAULT_END_AFTER, 'days');
 	
 		if (!endDate.isValid()) {
@@ -81,7 +81,7 @@ module.exports = {
 			);
 		}
 			
-		if (startDate.isAfter(endDate)) {
+		if (startDate.isSameOrAfter(endDate)) {
 			return await interaction.editReply( 
 				"La date de fin doit avoir lieu après celle de début"
 			);  
@@ -105,8 +105,6 @@ module.exports = {
 		const [guildModel] = await Guild.findOrCreate({
 			where: { id: guild.id }
 		});
-
-		console.log(guildModel.channel);
 
 		if (!guildModel.channel) {
 			return await interaction.editReply(
