@@ -21,7 +21,7 @@ const buttonsRow = () => {
 const getProperEmbed = async (auction, guild) => {
 	let embed;
 	if (auction.winner_id) {
-		const participation = await AuctionParticipation.findOne({where: {user_id: auction.winner_id}});
+		const participation = await AuctionParticipation.findOne({where: {auction_id: auction.id, user_id: auction.winner_id}});
 		embed = await winnerEmbed(auction, guild, auction.winner_id, participation.entries);
 	}
 	else embed = await auctionEmbed(auction, guild);
