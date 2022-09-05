@@ -6,6 +6,7 @@ module.exports = {
 		.setName('prefix')
 		.setDescription('Set a server prefix')
 		.setDMPermission(false)
+        .setDefaultMemberPermissions(0)
 		.addStringOption(option => 
 			option.setName('input')
 				.setDescription('New prefix')

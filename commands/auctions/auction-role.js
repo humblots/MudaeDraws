@@ -6,6 +6,7 @@ module.exports = {
 		.setName('arole')
 		.setDescription('Set a role for different mentions')
 		.setDMPermission(false)
+		.setDefaultMemberPermissions(0)
 		.addRoleOption(option =>
 			option.setName('role')
 				.setDescription("Role for mentions")

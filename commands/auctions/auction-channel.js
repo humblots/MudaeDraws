@@ -6,6 +6,7 @@ module.exports = {
 		.setName('achannel')
 		.setDescription('Set an auction channel')
 		.setDMPermission(false)
+		.setDefaultMemberPermissions(0)
 		.addChannelOption(option =>
 			option.setName('channel')
 				.setDescription("Auction's channel")
