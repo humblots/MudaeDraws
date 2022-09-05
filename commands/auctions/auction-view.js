@@ -93,8 +93,8 @@ module.exports = {
             return await i.update(message);
         });
 
-        collector.on("end", () => {
-            interaction.editReply({ components: [] });
+        collector.on("end", async () => {
+            await interaction.editReply({ components: [] });
         });
     },
 };
