@@ -13,6 +13,7 @@ module.exports = {
             .setRequired(true)
         ),
     async execute(client, interaction) {
+        return interaction.editReply("Temporary disabled");
         await interaction.deferReply();
 
         const id = interaction.options.getInteger("auction-id");
