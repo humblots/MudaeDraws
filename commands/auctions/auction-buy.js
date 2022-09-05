@@ -98,10 +98,11 @@ const awaitValidation = async(channel, member, auction, amount) => {
                     if (reason === "time") reject("L'achat n'a pas abouti.");
                     if (reason === "end") reject("Kakera insuffisant");
                 });
+                return;
             }
 
-            if (reason === "time") reject("Temps écoulé");
-            if (reason === "end") reject("Opération annulée");
+            if (reason === "time") return reject("Temps écoulé");
+            if (reason === "end") return reject("Opération annulée");
         });
     });
 };
