@@ -86,15 +86,15 @@ const awaitValidation = async(channel, member, auction, amount) => {
                         m.content.includes(auction.user_id)
                     ) {
                         resolve(true);
-                        return collector.stop("confirmed");
+                        return mudaeCollector.stop("confirmed");
                     }
 
                     if (m.content === "Error: not enough kakera!") {
-                        return collector.stop("end");
+                        return mudaeCollector.stop("end");
                     }
                 });
 
-                collector.on("end", (collected, reason) => {
+                mudaeCollector.on("end", (collected, reason) => {
                     if (reason === "time") reject("L'achat n'a pas abouti.");
                     if (reason === "end") reject("Kakera insuffisant");
                 });
