@@ -179,7 +179,7 @@ module.exports = {
 			}
 		}
 
-		const amount = entries * (auction.entry_price || Auction.DEFAULT_PRICE);
+		const amount = entries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price);
 		if (amount !== 0) {
 			await interaction.editReply(
 				`Pour confirmer ton achat, tapes la commande: \`$givek ${auction.user_id} ${amount}\`\n` +
