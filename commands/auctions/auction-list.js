@@ -28,6 +28,16 @@ const buttonsRow = () => {
     );
 };
 
+const pButtonRow = (label) => {
+    return new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+        .setCustomId("auction-participations")
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel(label)
+        .setEmoji("🔄")
+    );
+}
+
 const pButtonsRow = (label) => {
     return buttonsRow().addComponents(
         new ButtonBuilder()
@@ -118,13 +128,13 @@ module.exports = {
             let showParticipations = false;
 
             if (count === 1) {
-                return await interaction.editReply({ embeds: [embed], components: [pButtonsRow("Voir les participations")] });
+                await interaction.editReply({ embeds: [embed], components: [pButtonRow("Voir les participations")] });
+            } else {
+                await interaction.editReply({
+                    embeds: [embed],
+                    components: [pButtonsRow("Voir les participations")],
+                });
             }
-
-            await interaction.editReply({
-                embeds: [embed],
-                components: [pButtonsRow("Voir les participations")],
-            });
 
             collector = channel.createMessageComponentCollector({viewCollectorFilter, time: 60 * 1000});
             collector.on("collect", async(i) => {
@@ -149,7 +159,10 @@ module.exports = {
 
                 return await i.update({ 
                     embeds: [embed], 
-                    components: [pButtonsRow(showParticipations ? "Voir le tirage" : "Voir les participations")] 
+                    components: [ count === 1 
+                        ? pButtonRow(showParticipations ? "Voir le tirage" : "Voir les participations")
+                        : pButtonsRow(showParticipations ? "Voir le tirage" : "Voir les participations")
+                    ]
                 });
             });
             collector.on("end", () => {
