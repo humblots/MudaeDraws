@@ -9,6 +9,7 @@ const {
     auctionEmbed,
     auctionListEmbed,
     userAuctionListEmbed,
+    participationsEmbed,
     winnerEmbed,
 } = require("../../utils/embeds");
 
@@ -27,18 +28,21 @@ const buttonsRow = () => {
     );
 };
 
+const participationButton = () => {
+    new ButtonBuilder()
+    .setCustomId("auction-participations")
+    .setStyle(ButtonStyle.Secondary)
+    .setLabel(label)
+    .setEmoji("🔄")
+}
+
 const getProperEmbed = async(auction, guild) => {
     let embed;
     if (auction.winner_id) {
         const participation = await AuctionParticipation.findOne({
             where: { auction_id: auction.id, user_id: auction.winner_id },
         });
-        embed = await winnerEmbed(
-            auction,
-            guild,
-            auction.winner_id,
-            participation.entries
-        );
+        embed = await winnerEmbed(auction, guild, auction.winner_id, participation.entries);
     } else embed = await auctionEmbed(auction, guild);
     return embed;
 };
@@ -49,6 +53,10 @@ const collectorFilter = (btnInt) => {
         btnInt.customId === "auction-list-fwd"
     );
 };
+
+const viewCollectorFilter = (btnInt) => {
+    return collectorFilter(btnInt) || btnInt.customId === "auction-participations";
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -100,29 +108,39 @@ module.exports = {
             const rows = await Auction.findAll(filter);
             let auction = rows[index];
             let embed = await getProperEmbed(auction, guild);
+            let showParticipations = false;
+
             if (count === 1) {
                 return await interaction.editReply({ embeds: [embed] });
             }
 
             await interaction.editReply({
                 embeds: [embed],
-                components: [buttonsRow()],
+                components: [buttonsRow().addComponents(participationButton())],
             });
-            collector = channel.createMessageComponentCollector({
-                collectorFilter,
-                time: 60 * 1000,
-            });
+
+            collector = channel.createMessageComponentCollector({viewCollectorFilter, time: 60 * 1000});
             collector.on("collect", async(i) => {
                 if (i.customId === "auction-list-bwd") {
                     if (index - 1 < 0) index = count - 1;
                     else index--;
-                } else {
+                } else if (i.customId === "auction-list-fwd") {
                     if (index + 1 >= count) index = 0;
                     else index++;
+                } else {
+                    showParticipations = !showParticipations;
                 }
 
-                embed = await getProperEmbed(rows[index], guild);
-                return await i.update({ embeds: [embed], components: [buttonsRow()] });
+                if (showParticipations) {
+                    const participations = await auction.getAuctionParticipations();
+                    const entriesSum = await AuctionParticipation.sum("entries", {
+                        where: { auction_id: auction.id },
+                    });
+                    embed = await participationsEmbed(rows[index], guild, participations, entriesSum);
+                } 
+                else embed = await getProperEmbed(rows[index], guild);
+
+                return await i.update({ embeds: [embed], components: [buttonsRow().addComponents(participationButton())] });
             });
             collector.on("end", () => {
                 interaction.editReply({ components: [] });
