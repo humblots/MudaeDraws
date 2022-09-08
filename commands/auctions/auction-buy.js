@@ -26,8 +26,9 @@ const awaitGivek = async (channel, member, auction, amount) => {
 				return collector.stop('end');
 			}
 
-			if (args[0] !== auction.user_id) {
+			if (!args[0].includes(auction.user_id)) {
 				m.react('❌');
+                console.log(args[0])
 				return channel.send('Vérifiez l\'id');
 			}
 
@@ -76,7 +77,7 @@ const awaitValidation = async (channel, member, auction, amount) => {
 				});
 				mudaeCollector.on('collect', (m) => {
 					if (
-						(m.mentions.has(member) || m.content.includes(member.id)) &&
+						m.content.includes(member.id) &&
                         m.content.includes(amount) &&
                         m.content.includes(':kakera:469835869059153940') &&
                         m.content.includes(auction.user_id)
