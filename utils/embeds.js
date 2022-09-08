@@ -122,26 +122,24 @@ const participationsEmbed = async (
 
 	for (const participation of participations) {
 		const member = await getMember(guild, participation.user_id);
+		const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${
-				auction.max_user_entries || auction.max_entries || '∞'
+				auction.max_user_entries || auction.max_entries || `∞ - ${(participation.entries/entriesSum).toFixed(4)}`
 			}\n` +
-                `Total dépensé: ${participation.entries * (auction.entry_price === null
-                	? Auction.DEFAULT_PRICE
-                	: auction.entry_price
-                )}`,
+                `Total dépensé: ${participation.entries * price}`,
 		});
 	}
 
+	let description;
 	if (auction.max_entries) {
-		embed.setDescription(
-			`**Nombre d'entrées restantes: ${auction.max_entries - entriesSum}**`,
-		);
+		description = `**Nombre d'entrées restantes: ${auction.max_entries - entriesSum}**`;
 	}
 	else {
-		embed.setDescription('**Nombre d\'entrées restantes: ∞**');
+		description = '**Nombre d\'entrées restantes: ∞**';
 	}
+	embed.setDescription(description + `\n**Total mis en jeu:** ${entriesSum * price}`);
 
 	return embed;
 };
