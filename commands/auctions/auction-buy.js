@@ -76,7 +76,7 @@ const awaitValidation = async (channel, member, auction, amount) => {
 				});
 				mudaeCollector.on('collect', (m) => {
 					if (
-						(m.content.includes(member) || m.content.includes(member.id)) &&
+						(m.mentions.has(member) || m.content.includes(member.id)) &&
                         m.content.includes(amount) &&
                         m.content.includes(':kakera:469835869059153940') &&
                         m.content.includes(auction.user_id)
