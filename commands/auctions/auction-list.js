@@ -139,9 +139,9 @@ module.exports = {
                 }
 
                 if (showParticipations) {
-                    const participations = await auction.getAuctionParticipations();
+                    const participations = await rows[index].getAuctionParticipations();
                     const entriesSum = await AuctionParticipation.sum("entries", {
-                        where: { auction_id: auction.id },
+                        where: { auction_id: rows[index].id },
                     });
                     embed = await participationsEmbed(rows[index], guild, participations, entriesSum);
                 } 
