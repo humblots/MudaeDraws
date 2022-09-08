@@ -106,6 +106,7 @@ const participationsEmbed = async (
 	entriesSum,
 ) => {
 	const auctionMember = await getMember(guild, auction.user_id);
+	const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
 	const embed = new EmbedBuilder()
 		.setColor(auction.getEmbedColor())
 		.setTitle('Participations pour le tirage de ' + auction.character)
@@ -122,7 +123,6 @@ const participationsEmbed = async (
 
 	for (const participation of participations) {
 		const member = await getMember(guild, participation.user_id);
-		const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${
