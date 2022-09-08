@@ -28,12 +28,14 @@ const buttonsRow = () => {
     );
 };
 
-const participationButton = (label) => {
-    new ButtonBuilder()
-    .setCustomId("auction-participations")
-    .setStyle(ButtonStyle.Secondary)
-    .setLabel(label)
-    .setEmoji("🔄")
+const pButtonsRow = (label) => {
+    return buttonsRow().addComponents(
+        new ButtonBuilder()
+        .setCustomId("auction-participations")
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel(label)
+        .setEmoji("🔄")
+    );
 }
 
 const getProperEmbed = async(auction, guild) => {
@@ -116,12 +118,12 @@ module.exports = {
             let showParticipations = false;
 
             if (count === 1) {
-                return await interaction.editReply({ embeds: [embed] });
+                return await interaction.editReply({ embeds: [embed], components: [pButtonsRow("Voir les participations")] });
             }
 
             await interaction.editReply({
                 embeds: [embed],
-                components: [buttonsRow().addComponents(participationButton("Voir les participations"))],
+                components: [pButtonsRow("Voir les participations")],
             });
 
             collector = channel.createMessageComponentCollector({viewCollectorFilter, time: 60 * 1000});
@@ -147,7 +149,7 @@ module.exports = {
 
                 return await i.update({ 
                     embeds: [embed], 
-                    components: [buttonsRow().addComponents(participationButton(showParticipations ? "Voir le tirage" : "Voir les participations"))] 
+                    components: [pButtonsRow(showParticipations ? "Voir le tirage" : "Voir les participations")] 
                 });
             });
             collector.on("end", () => {
