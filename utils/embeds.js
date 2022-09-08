@@ -126,7 +126,7 @@ const participationsEmbed = async (
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${
-				auction.max_user_entries || auction.max_entries || `∞ - ${(participation.entries/entriesSum).toFixed(4)}`
+				auction.max_user_entries || auction.max_entries || `∞ - ${(participation.entries/entriesSum).toFixed(6) * 100} %`
 			}\n` +
                 `Total dépensé: ${participation.entries * price}`,
 		});
