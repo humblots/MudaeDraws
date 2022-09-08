@@ -59,17 +59,6 @@ const getProperEmbed = async(auction, guild) => {
     return embed;
 };
 
-const collectorFilter = (btnInt) => {
-    return (
-        btnInt.customId === "auction-list-bwd" ||
-        btnInt.customId === "auction-list-fwd"
-    );
-};
-
-const viewCollectorFilter = (btnInt) => {
-    return collectorFilter(btnInt) || btnInt.customId === "auction-participations";
-}
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("alist")
@@ -136,6 +125,11 @@ module.exports = {
                 });
             }
 
+            const viewCollectorFilter = (btnInt) => {
+                return collectorFilter(btnInt) || 
+                    (btnInt.customId === "auction-participations" && btnInt.message.id === interaction.id);
+            }            
+
             collector = channel.createMessageComponentCollector({viewCollectorFilter, time: 60 * 1000});
             collector.on("collect", async(i) => {
                 if (i.customId === "auction-list-bwd") {
@@ -184,6 +178,13 @@ module.exports = {
                     embeds: [embed],
                     components: [buttonsRow()],
                 });
+
+                const collectorFilter = (btnInt) => {
+                    return (
+                        (btnInt.customId === "auction-list-bwd" && btnInt.message.id === interaction.id) ||
+                        (btnInt.customId === "auction-list-fwd" && btnInt.message.id === interaction.id)
+                    );
+                };
 
                 collector = interaction.channel.createMessageComponentCollector({
                     collectorFilter,
