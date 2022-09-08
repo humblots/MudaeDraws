@@ -28,7 +28,7 @@ const buttonsRow = () => {
     );
 };
 
-const participationButton = () => {
+const participationButton = (label) => {
     new ButtonBuilder()
     .setCustomId("auction-participations")
     .setStyle(ButtonStyle.Secondary)
@@ -70,7 +70,12 @@ module.exports = {
             option
             .setName("status")
             .setDescription("Auction Status")
-            .addChoices({ name: Auction.PENDING_STATUS, value: Auction.PENDING_STATUS }, { name: Auction.ONGOING_STATUS, value: Auction.ONGOING_STATUS }, { name: Auction.CANCELLED_STATUS, value: Auction.CANCELLED_STATUS }, { name: Auction.FINISHED_STATUS, value: Auction.FINISHED_STATUS })
+            .addChoices(
+                { name: Auction.PENDING_STATUS, value: Auction.PENDING_STATUS }, 
+                { name: Auction.ONGOING_STATUS, value: Auction.ONGOING_STATUS }, 
+                { name: Auction.CANCELLED_STATUS, value: Auction.CANCELLED_STATUS }, 
+                { name: Auction.FINISHED_STATUS, value: Auction.FINISHED_STATUS }
+            )
         )
         .addBooleanOption((option) =>
             option.setName("view").setDescription("View list auction per auction")
@@ -116,7 +121,7 @@ module.exports = {
 
             await interaction.editReply({
                 embeds: [embed],
-                components: [buttonsRow().addComponents(participationButton())],
+                components: [buttonsRow().addComponents(participationButton("Voir les participations"))],
             });
 
             collector = channel.createMessageComponentCollector({viewCollectorFilter, time: 60 * 1000});
@@ -140,7 +145,10 @@ module.exports = {
                 } 
                 else embed = await getProperEmbed(rows[index], guild);
 
-                return await i.update({ embeds: [embed], components: [buttonsRow().addComponents(participationButton())] });
+                return await i.update({ 
+                    embeds: [embed], 
+                    components: [buttonsRow().addComponents(participationButton(showParticipations ? "Voir le tirage" : "Voir les participations"))] 
+                });
             });
             collector.on("end", () => {
                 interaction.editReply({ components: [] });
