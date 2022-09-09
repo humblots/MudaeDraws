@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Auction } = require('../../models');
+const { Auction, Guild } = require('../../models');
 const { auctionEmbed } = require('../../utils/embeds');
+const { getChannel } = require('../../utils/discord-getters');
+const moment = require('moment');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -50,7 +52,7 @@ module.exports = {
 		const { options, guild, member } = interaction;
 
 		const id = options.getInteger('auction-id');
-		const auction = await Auction.findByPk(id);
+		const auction = await Auction.findByPk(id, { include: Guild });
 		if (auction === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
@@ -64,79 +66,98 @@ module.exports = {
 			);
 		}
 
+		const endDateInput = options.getString('end-date'),
+			startDateInput = options.getString('start-date'),
+			img = options.get('image'),
+			price = options.getInteger('entry-price'),
+			maxEntries = options.getInteger('max-entries'),
+			maxUserEntries = options.getInteger('max-user-entries');
+
 		if (auction.status !== Auction.PENDING_STATUS) {
-			return await interaction.editReply(
-				'Ce tirage ne peut plus être édité.',
-			);
-		}
-
-		// End Date handling
-		const endDateInput = options.getString('end-date');
-		if (endDateInput) {
-			const endDate = moment(endDateInput, 'DD/MM/YYYY h:mm');
-			if (!endDate.isValid()) {
+			if (endDateInput || startDateInput || price !== null || maxEntries || maxUserEntries) {
 				return await interaction.editReply(
-					'La nouvelle date de fin est invalide.',
+					'Seule l\'image de ce tirage peut-être modifiée.',
 				);
 			}
-			if (endDate.isBefore(moment())) {
-				return await interaction.editReply(
-					'La nouvelle date de fin ne peut pas être dans le passé.',
-				);
-			}
-			auction.end_date = endDate.toDate();
-		}
-
-		// Start Date handling
-		const startDateInput = options.getString('start-date');
-		if (startDateInput) {
-			const startDate = moment(startDateInput, 'DD/MM/YYYY h:mm');
-			if (!startDate.isValid()) {
-				return await interaction.editReply(
-					'La nouvelle date de début est invalide.',
-				);
-			}
-			if (startDate.isBefore(moment())) {
-				return await interaction.editReply(
-					'La nouvelle date de début ne peut pas être dans le passé.',
-				);
-			}
-			if (startDate.isSameOrAfter(moment(auction.end_date))) {
-				return await interaction.editReply(
-					'La nouvelle date de début ne peut pas avoir lieu après la date de fin.',
-				);
-			}
-			auction.start_date = startDate.toDate();
-		}
-
-		const img = options.getString('image');
-		if (img) {
 			auction.img_url = img;
 		}
-		const price = options.getInteger('entry-price');
-		if (price !== null) {
-			auction.entry_price = price;
+		else {
+			// End Date handling
+			if (endDateInput) {
+				const endDate = moment(endDateInput, 'DD/MM/YYYY h:mm');
+				if (!endDate.isValid()) {
+					return await interaction.editReply(
+						'La nouvelle date de fin est invalide.',
+					);
+				}
+				if (endDate.isBefore(moment())) {
+					return await interaction.editReply(
+						'La nouvelle date de fin ne peut pas être dans le passé.',
+					);
+				}
+				auction.end_date = endDate.toDate();
+			}
+
+			// Start Date handling
+			if (startDateInput) {
+				const startDate = moment(startDateInput, 'DD/MM/YYYY h:mm');
+				if (!startDate.isValid()) {
+					return await interaction.editReply(
+						'La nouvelle date de début est invalide.',
+					);
+				}
+				if (startDate.isBefore(moment())) {
+					return await interaction.editReply(
+						'La nouvelle date de début ne peut pas être dans le passé.',
+					);
+				}
+				if (startDate.isSameOrAfter(moment(auction.end_date))) {
+					return await interaction.editReply(
+						'La nouvelle date de début ne peut pas avoir lieu après la date de fin.',
+					);
+				}
+				auction.start_date = startDate.toDate();
+			}
+
+			if (img) {
+				auction.img_url = img;
+			}
+			if (price !== null) {
+				auction.entry_price = price;
+			}
+
+			auction.max_entries = maxEntries;
+
+			if (maxUserEntries === null) {
+				auction.max_user_entries = null;
+			}
+			else if (auction.max_entries === null) {
+				auction.max_user_entries = maxUserEntries;
+			}
+			else if (maxUserEntries > auction.max_entries) {
+				return await interaction.editReply(
+					'Le nombre maximal d\'entrées par utilisateur doit être inférieur aux nombre maximal d\'entrées total du tirage.',
+				);
+			}
 		}
 
-		const maxEntries = options.getInteger('max-entries');
-		auction.max_entries = maxEntries;
-
-		const maxUserEntries = options.getInteger('max-user-entries');
-		if (maxUserEntries === null) {
-			auction.max_user_entries = null;
+		if (auction.changed()) {
+			await auction.save();
+			const embed = await auctionEmbed(auction, guild);
+			if (auction.Guild.channel !== null) {
+				const channel = await getChannel(guild, auction.Guild.channel);
+				channel.send({
+					content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
+						`Le tirage pour ${auction.character} a été mis à jour !`,
+					embeds: [embed] });
+				await interaction.editReply('Done.');
+			}
+			else {
+				await interaction.editReply({ embeds: [embed] });
+			}
 		}
-		else if (auction.max_entries === null) {
-			auction.max_user_entries = maxUserEntries;
+		else {
+			await interaction.editReply('Aucun changement.');
 		}
-		else if (maxUserEntries > auction.max_entries) {
-			return await interaction.editReply(
-				'Le nombre maximal d\'entrées par utilisateur doit être inférieur aux nombre maximal d\'entrées total du tirage.',
-			);
-		}
-
-		await auction.save();
-
-		const embed = await auctionEmbed(auction, guild);
-		await interaction.editReply({ embeds: [embed] });
 	},
 };
