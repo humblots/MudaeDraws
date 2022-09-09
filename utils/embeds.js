@@ -106,7 +106,7 @@ const participationsEmbed = async (
 	entriesSum,
 ) => {
 	const auctionMember = await getMember(guild, auction.user_id);
-	const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
+	const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price;
 	const embed = new EmbedBuilder()
 		.setColor(auction.getEmbedColor())
 		.setTitle('Participations pour le tirage de ' + auction.character)
@@ -126,7 +126,7 @@ const participationsEmbed = async (
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${
-				auction.max_user_entries || auction.max_entries || `∞ - ${(participation.entries/entriesSum).toFixed(6) * 100} %`
+				auction.max_user_entries || auction.max_entries || `∞ - ${(participation.entries / entriesSum).toFixed(6) * 100} %`
 			}\n` +
                 `Total dépensé: ${participation.entries * price}`,
 		});
@@ -159,9 +159,7 @@ const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
 		)
 		.setDescription(
 			`**Nombre d'entrées:** ${winnerEntries}\n` +
-            `**Total dépensé:** ${
-            	winnerEntries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price)
-            }\n` +
+            `**Total dépensé:** ${winnerEntries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price)}\n` +
             'Fais-un signe à l\'organisateur pour récupérer ton gain',
 		)
 		.setImage(auction.img_url)

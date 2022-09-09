@@ -9,19 +9,19 @@ module.exports = {
 		.setDefaultMemberPermissions(0)
 		.addRoleOption(option =>
 			option.setName('role')
-				.setDescription("Role for mentions")
+				.setDescription('Role for mentions')
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-        const role = interaction.options.getRole('role');
+		const role = interaction.options.getRole('role');
 
-        const [guild] = await Guild.findOrCreate({
-			where: { id: interaction.guildId }
+		const [guild] = await Guild.findOrCreate({
+			where: { id: interaction.guildId },
 		});
-        
-        guild.role = role.id;
 
-        await guild.save();
-        await interaction.reply("Role défini !");
+		guild.role = role.id;
+
+		await guild.save();
+		await interaction.reply('Role défini !');
 	},
 };

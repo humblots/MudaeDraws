@@ -28,7 +28,7 @@ const awaitGivek = async (channel, member, auction, amount) => {
 
 			if (!args[0].includes(auction.user_id)) {
 				m.react('❌');
-                console.log(args[0])
+				console.log(args[0]);
 				return channel.send('Vérifiez l\'id');
 			}
 

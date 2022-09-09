@@ -1,6 +1,5 @@
 'use strict';
 const { Model } = require('sequelize');
-const { Auction } = require('../models');
 
 module.exports = (sequelize, DataTypes) => {
 	class Guild extends Model {
@@ -18,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
 		id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
 		prefix: { type: DataTypes.STRING, defaultValue: null },
 		channel: { type: DataTypes.STRING, defaultValue: null },
-		role: { type: DataTypes.STRING, defaultValue: null }
+		role: { type: DataTypes.STRING, defaultValue: null },
 	}, {
 		sequelize,
 		modelName: 'Guild',

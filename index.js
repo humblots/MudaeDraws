@@ -6,10 +6,10 @@ require('dotenv').config();
 const { TOKEN } = process.env;
 
 // Create a new client instance
-const client = new Client({ intents: [		
+const client = new Client({ intents: [
 	GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,
-	GatewayIntentBits.MessageContent
+	GatewayIntentBits.MessageContent,
 ] });
 
 client.commands = new Collection();
@@ -41,15 +41,15 @@ for (const file of eventFiles) {
 /**
  * Uncomment to handle components
  */
-//const componentsFolders = fs.readdirSync(path.join(__dirname, 'components'));
-//for (const folder of componentsFolders) {
+// const componentsFolders = fs.readdirSync(path.join(__dirname, 'components'));
+// for (const folder of componentsFolders) {
 //	const componentsPath = path.join(__dirname, 'components', folder);
 //	const componentsFiles = fs.readdirSync(componentsPath).filter(file => file.endsWith('.js'));
 //	for (const file of componentsFiles) {
 //		const component = require(path.join(componentsPath, file));
 //		client[folder].set(component.data.name, component);
 //	}
-//}
+// }
 
 // Login to Discord with your client's token
 client.login(TOKEN);
