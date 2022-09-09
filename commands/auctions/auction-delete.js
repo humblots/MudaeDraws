@@ -1,5 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Auction } = require('../../models');
+const { Auction, Guild } = require('../../models');
+const { getChannel } = require('../../utils/discord-getters');
+const { auctionEmbed } = require('../../utils/embeds');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -14,10 +16,10 @@ module.exports = {
 		),
 	async execute(client, interaction) {
 		await interaction.deferReply();
-		const { options, member } = interaction;
+		const { options, member, guild } = interaction;
 		const id = options.getInteger('auction-id');
 
-		const auction = await Auction.findByPk(id);
+		const auction = await Auction.findByPk(id, { include: Guild });
 		if (auction === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
@@ -38,6 +40,17 @@ module.exports = {
 		}
 
 		await auction.destroy();
-		await interaction.editReply('Tirage supprimé.');
+		const embed = await auctionEmbed(auction, guild);
+		const message = {
+			content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
+				`Le tirage pour ${auction.character} a été supprimé !`,
+			embeds: [embed],
+		};
+		if (auction.Guild.channel !== null) {
+			const channel = await getChannel(guild, auction.Guild.channel);
+			channel.send(message);
+			await interaction.editReply('Done.');
+		}
+		await interaction.editReply(message);
 	},
 };

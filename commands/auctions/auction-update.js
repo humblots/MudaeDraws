@@ -144,16 +144,18 @@ module.exports = {
 		if (auction.changed()) {
 			await auction.save();
 			const embed = await auctionEmbed(auction, guild);
+			const message = {
+				content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
+					`Le tirage pour ${auction.character} a été mis à jour !`,
+				embeds: [embed],
+			};
 			if (auction.Guild.channel !== null) {
 				const channel = await getChannel(guild, auction.Guild.channel);
-				channel.send({
-					content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
-						`Le tirage pour ${auction.character} a été mis à jour !`,
-					embeds: [embed] });
+				channel.send(message);
 				await interaction.editReply('Done.');
 			}
 			else {
-				await interaction.editReply({ embeds: [embed] });
+				await interaction.editReply(message);
 			}
 		}
 		else {
