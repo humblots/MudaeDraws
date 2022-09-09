@@ -68,7 +68,7 @@ module.exports = {
 
 		const endDateInput = options.getString('end-date'),
 			startDateInput = options.getString('start-date'),
-			img = options.get('image'),
+			img = options.getString('image'),
 			price = options.getInteger('entry-price'),
 			maxEntries = options.getInteger('max-entries'),
 			maxUserEntries = options.getInteger('max-user-entries');
