@@ -208,11 +208,19 @@ module.exports = {
 		}
 
 		if (!userParticipation) {
-			userParticipation = await AuctionParticipation.create({
-				user_id: member.id,
-				auction_id: id,
-				entries: entries,
+			const [userParticipations, created] = await AuctionParticipation.findOrCreate({
+				where: {
+					user_id: member.id,
+					auction_id: id,
+				},
+				defaults: {
+					entries: entries,
+				},
 			});
+			if (!created) {
+				userParticipations.entries += entries;
+				await userParticipations.save();
+			}
 		}
 		else {
 			userParticipation.entries += entries;
