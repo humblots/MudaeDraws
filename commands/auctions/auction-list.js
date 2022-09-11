@@ -90,8 +90,8 @@ module.exports = {
 		const view = options.getBoolean('view');
 		const collectorFilter = (btnInt) => {
 			return (
-				(btnInt.customId === 'auction-list-bwd' && btnInt.message.id === interaction.id) ||
-				(btnInt.customId === 'auction-list-fwd' && btnInt.message.id === interaction.id)
+				(btnInt.customId === 'auction-list-bwd') ||
+				(btnInt.customId === 'auction-list-fwd')
 			);
 		};
 
@@ -134,39 +134,44 @@ module.exports = {
 
 			const viewCollectorFilter = (btnInt) => {
 				return collectorFilter(btnInt) ||
-                    (btnInt.customId === 'auction-participations' && btnInt.message.id === interaction.id);
+                    (btnInt.customId === 'auction-participations');
 			};
 
 			const collector = channel.createMessageComponentCollector({ viewCollectorFilter, time: 60 * 1000 });
 			collector.on('collect', async (i) => {
-				if (i.customId === 'auction-list-bwd') {
-					if (index - 1 < 0) index = count - 1;
-					else index--;
-				}
-				else if (i.customId === 'auction-list-fwd') {
-					if (index + 1 >= count) index = 0;
-					else index++;
-				}
-				else {
-					showParticipations = !showParticipations;
-				}
+				try {
+					if (i.customId === 'auction-list-bwd') {
+						if (index - 1 < 0) index = count - 1;
+						else index--;
+					}
+					else if (i.customId === 'auction-list-fwd') {
+						if (index + 1 >= count) index = 0;
+						else index++;
+					}
+					else {
+						showParticipations = !showParticipations;
+					}
 
-				if (showParticipations) {
-					const participations = await rows[index].getAuctionParticipations();
-					const entriesSum = await AuctionParticipation.sum('entries', {
-						where: { auction_id: rows[index].id },
+					if (showParticipations) {
+						const participations = await rows[index].getAuctionParticipations();
+						const entriesSum = await AuctionParticipation.sum('entries', {
+							where: { auction_id: rows[index].id },
+						});
+						embed = await participationsEmbed(rows[index], guild, participations, entriesSum);
+					}
+					else {embed = await getProperEmbed(rows[index], guild);}
+
+					return await i.update({
+						embeds: [embed],
+						components: [ count === 1
+							? pButtonRow(showParticipations ? 'Voir le tirage' : 'Voir les participations')
+							: pButtonsRow(showParticipations ? 'Voir le tirage' : 'Voir les participations'),
+						],
 					});
-					embed = await participationsEmbed(rows[index], guild, participations, entriesSum);
 				}
-				else {embed = await getProperEmbed(rows[index], guild);}
-
-				return await i.update({
-					embeds: [embed],
-					components: [ count === 1
-						? pButtonRow(showParticipations ? 'Voir le tirage' : 'Voir les participations')
-						: pButtonsRow(showParticipations ? 'Voir le tirage' : 'Voir les participations'),
-					],
-				});
+				catch (e) {
+					console.log(e);
+				}
 			});
 			collector.on('end', async () => {
 				await interaction.editReply({ components: [] });
@@ -197,24 +202,29 @@ module.exports = {
 			time: 60 * 1000,
 		});
 		collector.on('collect', async (i) => {
-			if (i.customId === 'auction-list-bwd') {
-				if (filter.offset - LIST_LIMIT < 0) {filter.offset = LIST_LIMIT * Math.floor(count / LIST_LIMIT);}
-				else {filter.offset -= LIST_LIMIT;}
+			try {
+				if (i.customId === 'auction-list-bwd') {
+					if (filter.offset - LIST_LIMIT < 0) {filter.offset = LIST_LIMIT * Math.floor(count / LIST_LIMIT);}
+					else {filter.offset -= LIST_LIMIT;}
+				}
+				else if (filter.offset + LIST_LIMIT >= count) {filter.offset = 0;}
+				else {filter.offset += LIST_LIMIT;}
+
+				rows = await Auction.findAll(filter);
+				pagination = {
+					count,
+					limit: LIST_LIMIT,
+					offset: filter.offset,
+				};
+				embed = member ?
+					userAuctionListEmbed(pagination, rows, guild, member) :
+					await auctionListEmbed(pagination, rows, guild);
+
+				await i.update({ embeds: [embed], components: [buttonsRow()] });
 			}
-			else if (filter.offset + LIST_LIMIT >= count) {filter.offset = 0;}
-			else {filter.offset += LIST_LIMIT;}
-
-			rows = await Auction.findAll(filter);
-			pagination = {
-				count,
-				limit: LIST_LIMIT,
-				offset: filter.offset,
-			};
-			embed = member ?
-				userAuctionListEmbed(pagination, rows, guild, member) :
-				await auctionListEmbed(pagination, rows, guild);
-
-			await i.update({ embeds: [embed], components: [buttonsRow()] });
+			catch (e) {
+				console.log(e);
+			}
 		});
 		collector.on('end', async () => {
 			await interaction.editReply({ components: [] });

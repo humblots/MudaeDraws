@@ -84,14 +84,19 @@ module.exports = {
 			time: 60 * 1000,
 		});
 		collector.on('collect', async (i) => {
-			showParticipations = !showParticipations;
-			if (showParticipations) {
-				return await i.update({
-					embeds: [pEmbed],
-					components: [buttonsRow('Voir le tirage')],
-				});
+			try {
+				showParticipations = !showParticipations;
+				if (showParticipations) {
+					return await i.update({
+						embeds: [pEmbed],
+						components: [buttonsRow('Voir le tirage')],
+					});
+				}
+				return await i.update(message);
 			}
-			return await i.update(message);
+			catch (e) {
+				console.log(e);
+			}
 		});
 
 		collector.on('end', async () => {
