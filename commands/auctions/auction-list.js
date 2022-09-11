@@ -15,13 +15,6 @@ const {
 
 const LIST_LIMIT = 5;
 
-const collectorFilter = (btnInt) => {
-	return (
-		(btnInt.customId === 'auction-list-bwd') ||
-		(btnInt.customId === 'auction-list-fwd')
-	);
-};
-
 const buttonsRow = () => {
 	return new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
@@ -95,6 +88,12 @@ module.exports = {
 		const status = options.getString('status');
 		const member = options.getMember('user');
 		const view = options.getBoolean('view');
+		const collectorFilter = (btnInt) => {
+			return (
+				(btnInt.customId === 'auction-list-bwd' && btnInt.message.id === interaction.id) ||
+				(btnInt.customId === 'auction-list-fwd' && btnInt.message.id === interaction.id)
+			);
+		};
 
 		const filter = {
 			where: { guild_id: guild.id },
@@ -135,7 +134,7 @@ module.exports = {
 
 			const viewCollectorFilter = (btnInt) => {
 				return collectorFilter(btnInt) ||
-                    (btnInt.customId === 'auction-participations');
+                    (btnInt.customId === 'auction-participations' && btnInt.message.id === interaction.id);
 			};
 
 			const collector = channel.createMessageComponentCollector({ viewCollectorFilter, time: 60 * 1000 });

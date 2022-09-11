@@ -78,7 +78,7 @@ module.exports = {
 			entriesSum,
 		);
 
-		const filter = (i) => i.customId === 'auction-participations';
+		const filter = (i) => (i.customId === 'auction-participations' && i.message.id === interaction.id);
 		const collector = interaction.channel.createMessageComponentCollector({
 			filter,
 			time: 60 * 1000,
