@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
 	}
 	AuctionParticipation.init({
 		auction_id: { type: DataTypes.INTEGER, allowNull: false },
-		user_id: { type: DataTypes.INTEGER, allowNull: false },
+		user_id: { type: DataTypes.STRING, allowNull: false },
 		entries: { type: DataTypes.INTEGER, allowNull: false },
 		created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: new Date() },
 		updated_at: DataTypes.DATE,
