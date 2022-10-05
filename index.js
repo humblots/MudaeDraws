@@ -12,9 +12,7 @@ const client = new Client({ intents: [
 	GatewayIntentBits.MessageContent,
 ] });
 
-client.commands = new Collection();
 client.slashCommands = new Collection();
-
 const slashCommandFolders = fs.readdirSync(path.join(__dirname, 'slash-commands'));
 for (const folder of slashCommandFolders) {
 	const slashCommandsPath = path.join(__dirname, 'slash-commands', folder);
@@ -25,15 +23,17 @@ for (const folder of slashCommandFolders) {
 	}
 }
 
-const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
-for (const folder of commandFolders) {
-	const commandsPath = path.join(__dirname, 'commands', folder);
-	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-	for (const file of commandFiles) {
-		const command = require(path.join(commandsPath, file));
-		client.commands.set(command.name, command);
-	}
-}
+// Temporary disabled commands ?
+// client.commands = new Collection();
+// const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
+// for (const folder of commandFolders) {
+// 	const commandsPath = path.join(__dirname, 'commands', folder);
+// 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+// 	for (const file of commandFiles) {
+// 		const command = require(path.join(commandsPath, file));
+// 		client.commands.set(command.name, command);
+// 	}
+// }
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));

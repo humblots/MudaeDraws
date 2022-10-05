@@ -2,7 +2,8 @@ const { Guild } = require('../models');
 const { DEFAULT_PREFIX } = require('../config.json');
 
 module.exports = {
-	name: 'messageCreate',
+	// Temporary disabled ?
+	name: '',
 	async execute(client, message) {
 		let prefix;
 		const guild = await Guild.findByPk(client.guildId);
