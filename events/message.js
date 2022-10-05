@@ -2,16 +2,15 @@ const { Guild } = require('../models');
 const { DEFAULT_PREFIX } = require('../config.json');
 
 module.exports = {
-	name: 'message',
+	name: 'messageCreate',
 	async execute(client, message) {
 		let prefix;
-		const guild = await Guild.findByPk(message.guildId);
+		const guild = await Guild.findByPk(client.guildId);
 		if (guild !== null && guild.prefix) {
 			prefix = guild.prefix;
 		} else {
 			prefix = DEFAULT_PREFIX;
 		}
-
 		if (!message.content.startsWith(prefix) || message.author.bot) {return;}
 
 		const args = message.content.substring(prefix.length).trim().split(/\s+/);

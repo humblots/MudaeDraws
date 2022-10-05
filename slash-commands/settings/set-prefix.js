@@ -18,13 +18,12 @@ module.exports = {
 		const guildId = interaction.guildId;
 		const newPrefix = interaction.options.getString('input');
 
-		await Guild.findOrCreate({
+		const [guild] = await Guild.findOrCreate({
 			where: { id: guildId },
-			defaults: {
-				prefix: newPrefix,
-			},
 		});
 
+		guild.prefix = prefix;
+		await guild.save();
 		await interaction.editReply(`**${newPrefix}** est le nouveau préfixe de ce serveur !`);
 	},
 };

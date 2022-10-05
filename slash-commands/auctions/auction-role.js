@@ -20,7 +20,6 @@ module.exports = {
 		});
 
 		guild.role = role.id;
-
 		await guild.save();
 		await interaction.reply('Role défini !');
 	},
