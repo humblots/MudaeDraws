@@ -9,7 +9,8 @@ module.exports = {
 		const embed = new EmbedBuilder()
 			.setTitle('Liste de toutes les commandes:')
 			.setDescription(
-				client.commands.map(command => `**/${command.data.name}** - ${command.data.description}`).join('\n'),
+				client.slashCommands.map(command => `**/${command.data.name}** - ${command.data.description}`).join('\n') + '\n' +
+				client.commands.map(command => `**${command.name}** - ${command.description}`).join('\n')
 			);
 
 		return interaction.reply({ embeds: [embed] });

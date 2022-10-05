@@ -3,7 +3,7 @@ module.exports = {
 	execute(client, interaction) {
 		if (interaction.isChatInputCommand()) {
 			const { commandName } = interaction;
-			const command = client.commands.get(commandName);
+			const command = client.slashCommands.get(commandName);
 			if (!command) return;
 
 			try {

@@ -3,12 +3,13 @@ const { DEFAULT_PREFIX } = require('../config.json');
 
 module.exports = {
 	name: 'message',
-	execute(client, message) {
-		let prefix = DEFAULT_PREFIX;
-
-		const guild = Guild.findByPk(message.guildId);
+	async execute(client, message) {
+		let prefix;
+		const guild = await Guild.findByPk(message.guildId);
 		if (guild !== null && guild.prefix) {
 			prefix = guild.prefix;
+		} else {
+			prefix = DEFAULT_PREFIX;
 		}
 
 		if (!message.content.startsWith(prefix) || message.author.bot) {return;}
@@ -43,7 +44,7 @@ module.exports = {
 			command.execute(message, args, client);
 		}
 		catch (error) {
-			message.channel.send(`Syntaxe: \`${prefix}${command.name} ${command.usage}\`\n${command.description}`);
+			message.channel.send(`Syntaxe: \`${prefix}${command.name}\`\n${command.description}`);
 		}
 	},
 };

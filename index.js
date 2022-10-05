@@ -13,7 +13,17 @@ const client = new Client({ intents: [
 ] });
 
 client.commands = new Collection();
-client.buttons = new Collection();
+client.slashCommands = new Collection();
+
+const slashCommandFolders = fs.readdirSync(path.join(__dirname, 'slash-commands'));
+for (const folder of slashCommandFolders) {
+	const slashCommandsPath = path.join(__dirname, 'slash-commands', folder);
+	const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
+	for (const file of slashCommandFiles) {
+		const command = require(path.join(slashCommandsPath, file));
+		client.slashCommands.set(command.data.name, command);
+	}
+}
 
 const commandFolders = fs.readdirSync(path.join(__dirname, 'commands'));
 for (const folder of commandFolders) {
@@ -21,7 +31,7 @@ for (const folder of commandFolders) {
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const command = require(path.join(commandsPath, file));
-		client.commands.set(command.data.name, command);
+		client.commands.set(command.name, command);
 	}
 }
 
