@@ -4,11 +4,14 @@ services:
   adminer:
     image: adminer
     container_name: ma_adminer
-    ports:
-      - 41234:8080
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.oph_adminer.rule=Host(`adminer.shumblot.fr`)"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.shumblot.fr`)"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.tls=true"
+      - "traefik.http.routers.adminer.tls.certresolver=le"
+    ports:
+      - "41234:8080"
     environment:
       ADMINER_DESIGN: hydra
       ADMINER_DEFAULT_SERVER: ma_mysql
@@ -43,6 +46,7 @@ services:
   cli:
     build: .
     container_name: ma_cli
+    restart: always
     depends_on:
       mysql:
         condition: service_healthy
