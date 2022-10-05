@@ -13,7 +13,7 @@ module.exports = {
 				.setRequired(true)
 				.setMaxLength(5),
 		),
-	async execute(interaction) {
+	async execute(client, interaction) {
 		await interaction.deferReply();
 		const guildId = interaction.guildId;
 		const newPrefix = interaction.options.getString('input');
