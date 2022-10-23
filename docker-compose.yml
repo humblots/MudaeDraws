@@ -28,7 +28,7 @@ services:
     restart: on-failure
     environment:
       MYSQL_DATABASE: mudae_auctions
-      MYSQL_ROOT_PASSWORD: QZFq5sf143qF3Q5z
+      MYSQL_ROOT_PASSWORD: Secured123+ 
       TZ: Europe/Paris
     ports:
       - 3306
