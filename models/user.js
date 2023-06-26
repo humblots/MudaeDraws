@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
 			this.hasMany(models.AuctionParticipation, { foreignKey: 'user_id' });
 		}
 	}
+
 	User.init({
 		id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
 		occupied: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },

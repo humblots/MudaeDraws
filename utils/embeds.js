@@ -18,8 +18,8 @@ const auctionEmbed = async (auction, guild, pagination = null) => {
 			`**Prix de l'entrée:** ${
 				auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
 			}\n` +
-            `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
-            `**Entrées max total:** ${auction.max_entries || 'illimité'}`,
+      `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
+      `**Entrées max total:** ${auction.max_entries || 'illimité'}`,
 		)
 		.addFields({
 			name: 'Date de début',
@@ -31,8 +31,8 @@ const auctionEmbed = async (auction, guild, pagination = null) => {
 		.setImage(auction.img_url)
 		.setFooter({
 			text: `Par ${member ? member.displayName : auction.user_id}\n` +
-                `id: ${auction.id} - ${auction.status}` +
-                paginationTrace,
+        `id: ${auction.id} - ${auction.status}` +
+        paginationTrace,
 			iconURL: member ? member.user.avatarURL() : null,
 		});
 
@@ -88,14 +88,14 @@ const _addAuctionField = (embed, auction, member) => {
 
 	embed.addFields({
 		name: `${auction.getStatusSymbol()} ${auction.status} - ` +
-            `${auction.character} - Id: ${auction.id} - Par ${member ? member.displayName : auction.user_id}`,
+      `${auction.character} - Id: ${auction.id} - Par ${member ? member.displayName : auction.user_id}`,
 		value: `**Prix de l'entrée:** ${
 			auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
 		}\n` +
-            `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
-            `**Entrées max total:** ${auction.max_entries || 'illimité'}\n` +
-            `**Date de début:** <t:${startDateTimeStamp}:R>\n` +
-            `**Date de fin:** <t:${endDateTimeStamp}:R>`,
+      `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
+      `**Entrées max total:** ${auction.max_entries || 'illimité'}\n` +
+      `**Date de début:** <t:${startDateTimeStamp}:R>\n` +
+      `**Date de fin:** <t:${endDateTimeStamp}:R>`,
 	});
 };
 
@@ -112,7 +112,7 @@ const participationsEmbed = async (
 		.setTitle('Participations pour le tirage de ' + auction.character)
 		.setFooter({
 			text: `Par ${auctionMember ? auctionMember.displayName : auction.user_id}\n` +
-                `id: ${auction.id} - ${auction.status}`,
+        `id: ${auction.id} - ${auction.status}`,
 			iconURL: auctionMember ? auctionMember.user.avatarURL() : null,
 		});
 
@@ -126,8 +126,8 @@ const participationsEmbed = async (
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${auction.max_user_entries || auction.max_entries || '∞'} ` +
-				`- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
-                `Total dépensé: ${participation.entries * price}`,
+        `- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
+        `Total dépensé: ${participation.entries * price}`,
 		});
 	}
 
@@ -158,13 +158,13 @@ const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
 		)
 		.setDescription(
 			`**Nombre d'entrées:** ${winnerEntries}\n` +
-            `**Total dépensé:** ${winnerEntries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price)}\n` +
-            'Fais-un signe à l\'organisateur pour récupérer ton gain',
+      `**Total dépensé:** ${winnerEntries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price)}\n` +
+      'Fais-un signe à l\'organisateur pour récupérer ton gain',
 		)
 		.setImage(auction.img_url)
 		.setFooter({
 			text: `Par ${auctionMember ? auctionMember.displayName : auction.user_id}\n` +
-                `id: ${auction.id} - ${auction.status}`,
+        `id: ${auction.id} - ${auction.status}`,
 			iconURL: auctionMember ? auctionMember.user.avatarURL() : null,
 		});
 

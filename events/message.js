@@ -9,16 +9,19 @@ module.exports = {
 		const guild = await Guild.findByPk(client.guildId);
 		if (guild !== null && guild.prefix) {
 			prefix = guild.prefix;
-		} else {
+		}
+		else {
 			prefix = DEFAULT_PREFIX;
 		}
-		if (!message.content.startsWith(prefix) || message.author.bot) {return;}
+		if (!message.content.startsWith(prefix) || message.author.bot) {
+			return;
+		}
 
 		const args = message.content.substring(prefix.length).trim().split(/\s+/);
 		const cmdName = args.shift().toLowerCase();
 
 		const command = client.commands.get(cmdName) ||
-        client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName));
+      client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(cmdName));
 		if (!command) return;
 
 		if (command.guildOnly && message.channel.type === 'dm') {

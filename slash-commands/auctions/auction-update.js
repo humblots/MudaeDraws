@@ -59,7 +59,7 @@ module.exports = {
 
 		if (
 			auction.user_id !== member.id ||
-            auction.guild_id !== interaction.guildId
+      auction.guild_id !== interaction.guildId
 		) {
 			return await interaction.editReply(
 				'Tu n\'as pas le droit d\'éditer ce tirage.',
@@ -146,7 +146,7 @@ module.exports = {
 			const embed = await auctionEmbed(auction, guild);
 			const message = {
 				content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
-					`Le tirage pour ${auction.character} a été mis à jour !`,
+          `Le tirage pour ${auction.character} a été mis à jour !`,
 				embeds: [embed],
 			};
 			if (auction.Guild.channel !== null) {

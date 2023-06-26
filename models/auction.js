@@ -44,16 +44,16 @@ module.exports = (sequelize, DataTypes) => {
 
 	Auction.STATUS_COLORS = {
 		[Auction.ONGOING_STATUS]: 0x5BC0DE,
-		[Auction.PENDING_STATUS] : 0xAAAAAA,
-		[Auction.FINISHED_STATUS] : 0x22BB33,
-		[Auction.CANCELLED_STATUS] : 0xBB2124,
+		[Auction.PENDING_STATUS]: 0xAAAAAA,
+		[Auction.FINISHED_STATUS]: 0x22BB33,
+		[Auction.CANCELLED_STATUS]: 0xBB2124,
 	};
 
 	Auction.STATUS_SYMBOLS = {
-		[Auction.ONGOING_STATUS] : '🔵',
-		[Auction.PENDING_STATUS] : '⚪',
-		[Auction.FINISHED_STATUS] : '🟢',
-		[Auction.CANCELLED_STATUS] : '🔴',
+		[Auction.ONGOING_STATUS]: '🔵',
+		[Auction.PENDING_STATUS]: '⚪',
+		[Auction.FINISHED_STATUS]: '🟢',
+		[Auction.CANCELLED_STATUS]: '🔴',
 	};
 
 	Auction.init({

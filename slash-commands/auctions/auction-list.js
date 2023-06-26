@@ -56,7 +56,9 @@ const getProperEmbed = async (auction, guild) => {
 		});
 		embed = await winnerEmbed(auction, guild, auction.winner_id, participation.entries);
 	}
-	else {embed = await auctionEmbed(auction, guild);}
+	else {
+		embed = await auctionEmbed(auction, guild);
+	}
 	return embed;
 };
 
@@ -91,7 +93,7 @@ module.exports = {
 		const collectorFilter = (btnInt) => {
 			return (
 				(btnInt.customId === 'auction-list-bwd') ||
-				(btnInt.customId === 'auction-list-fwd')
+        (btnInt.customId === 'auction-list-fwd')
 			);
 		};
 
@@ -134,7 +136,7 @@ module.exports = {
 
 			const viewCollectorFilter = (btnInt) => {
 				return collectorFilter(btnInt) ||
-                    (btnInt.customId === 'auction-participations');
+          (btnInt.customId === 'auction-participations');
 			};
 
 			const collector = channel.createMessageComponentCollector({ viewCollectorFilter, time: 60 * 1000 });
@@ -159,11 +161,13 @@ module.exports = {
 						});
 						embed = await participationsEmbed(rows[index], guild, participations, entriesSum);
 					}
-					else {embed = await getProperEmbed(rows[index], guild);}
+					else {
+						embed = await getProperEmbed(rows[index], guild);
+					}
 
 					return await i.update({
 						embeds: [embed],
-						components: [ count === 1
+						components: [count === 1
 							? pButtonRow(showParticipations ? 'Voir le tirage' : 'Voir les participations')
 							: pButtonsRow(showParticipations ? 'Voir le tirage' : 'Voir les participations'),
 						],
@@ -204,11 +208,19 @@ module.exports = {
 		collector.on('collect', async (i) => {
 			try {
 				if (i.customId === 'auction-list-bwd') {
-					if (filter.offset - LIST_LIMIT < 0) {filter.offset = LIST_LIMIT * Math.floor(count / LIST_LIMIT);}
-					else {filter.offset -= LIST_LIMIT;}
+					if (filter.offset - LIST_LIMIT < 0) {
+						filter.offset = LIST_LIMIT * Math.floor(count / LIST_LIMIT);
+					}
+					else {
+						filter.offset -= LIST_LIMIT;
+					}
 				}
-				else if (filter.offset + LIST_LIMIT >= count) {filter.offset = 0;}
-				else {filter.offset += LIST_LIMIT;}
+				else if (filter.offset + LIST_LIMIT >= count) {
+					filter.offset = 0;
+				}
+				else {
+					filter.offset += LIST_LIMIT;
+				}
 
 				rows = await Auction.findAll(filter);
 				pagination = {

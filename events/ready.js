@@ -4,7 +4,7 @@ const { updateStatus, pickWinners } = require('../utils/auction-cron');
 
 // Mass updates on pending auctions
 // Then Mass updates on finished auctions, results calculations and sending.
-const onTick = async client => {	
+const onTick = async client => {
 	await pickWinners(client);
 	await updateStatus(client);
 };

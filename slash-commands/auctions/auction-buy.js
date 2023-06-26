@@ -13,8 +13,8 @@ const awaitGivek = async (channel, member, auction, amount) => {
 	const command = '$givek';
 	const filter = (m) =>
 		(m.content.toLowerCase().startsWith(command) ||
-            m.content.toLowerCase() === exitWord) &&
-        m.author.id === member.id;
+      m.content.toLowerCase() === exitWord) &&
+    m.author.id === member.id;
 
 	const collector = channel.createMessageCollector({ filter, time: 60 * 1000 });
 	return new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ const awaitValidation = async (channel, member, auction, amount) => {
 	const cancelChoices = ['no', 'n'];
 	const filter = (m) =>
 		okChoices.concat(cancelChoices).includes(m.content.toLowerCase()) ||
-        (m.content.toLowerCase() === exitWord && m.author.id === member.id);
+    (m.content.toLowerCase() === exitWord && m.author.id === member.id);
 
 	const collector = channel.createMessageCollector({ filter, time: 15 * 1000 });
 	return new Promise((resolve, reject) => {
@@ -78,9 +78,9 @@ const awaitValidation = async (channel, member, auction, amount) => {
 				mudaeCollector.on('collect', (m) => {
 					if (
 						m.content.includes(member.id) &&
-                        m.content.includes(amount) &&
-                        m.content.includes(':kakera:469835869059153940') &&
-                        m.content.includes(auction.user_id)
+            m.content.includes(amount) &&
+            m.content.includes(':kakera:469835869059153940') &&
+            m.content.includes(auction.user_id)
 					) {
 						resolve(true);
 						return mudaeCollector.stop('confirmed');
@@ -156,8 +156,8 @@ module.exports = {
 			if (auction.max_user_entries) {
 				if (
 					entries > auction.max_user_entries ||
-                    (userParticipation &&
-                        userParticipation.entries + entries > auction.max_user_entries)
+          (userParticipation &&
+            userParticipation.entries + entries > auction.max_user_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée par utilisateur pour ce tirage.',
@@ -171,7 +171,7 @@ module.exports = {
 				});
 				if (
 					entries > auction.max_entries ||
-                    (userParticipation && entriesSum + entries > auction.max_entries)
+          (userParticipation && entriesSum + entries > auction.max_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée pour ce tirage.',
@@ -184,8 +184,8 @@ module.exports = {
 		if (amount !== 0) {
 			await interaction.editReply(
 				`Pour confirmer ton achat, tapes la commande: \`$givek ${auction.user_id} ${amount}\`\n` +
-				'Une fois la commande validée, ton achat sera effectif.:\n' +
-				`Pour annuler l'opération, tapes \`${exitWord}\`.`,
+        'Une fois la commande validée, ton achat sera effectif.:\n' +
+        `Pour annuler l'opération, tapes \`${exitWord}\`.`,
 			);
 
 			await user.update({ occupied: true });
@@ -202,7 +202,7 @@ module.exports = {
 			if (moment(auction.end_date).isBefore(moment())) {
 				return await interaction.followUp({
 					content: 'Le tirage a eu le temps de se terminer, dommage pour toi. ¯\\_(ツ)_/¯\n' +
-						'Demande vite un remboursement !',
+            'Demande vite un remboursement !',
 				});
 			}
 		}

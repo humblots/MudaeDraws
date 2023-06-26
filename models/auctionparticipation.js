@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 			this.belongsTo(models.Auction, { foreignKey: 'auction_id' });
 		}
 	}
+
 	AuctionParticipation.init({
 		auction_id: { type: DataTypes.INTEGER, allowNull: false },
 		user_id: { type: DataTypes.STRING, allowNull: false },

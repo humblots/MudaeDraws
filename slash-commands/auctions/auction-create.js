@@ -164,7 +164,7 @@ module.exports = {
 		const embed = await auctionEmbed(auction, guild);
 		channel.send({
 			content: `${guildModel.role ? '<@&' + guildModel.role + '>' : ''}` +
-				` Un nouveau tirage vient d'être créé pour **${auction.character}** !`,
+        ` Un nouveau tirage vient d'être créé pour **${auction.character}** !`,
 			embeds: [embed],
 		});
 

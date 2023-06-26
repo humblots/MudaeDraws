@@ -30,7 +30,7 @@ const updateStatus = async (client) => {
 		const embed = await auctionEmbed(auction, guild);
 		channel.send({
 			content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '>' : ''}` +
-                ` Le tirage pour **${auction.character}** vient de commencer !`,
+        ` Le tirage pour **${auction.character}** vient de commencer !`,
 			embeds: [embed],
 		});
 	}
@@ -75,8 +75,8 @@ const pickWinners = async (client) => {
 		if (!guild || !channel) continue;
 
 		const message =
-            `${auction.Guild.role ? '<@&' + auction.Guild.role + '>' : ''}` +
-            ` Le tirage pour **${auction.character}** vient de se terminer !`;
+      `${auction.Guild.role ? '<@&' + auction.Guild.role + '>' : ''}` +
+      ` Le tirage pour **${auction.character}** vient de se terminer !`;
 
 		const participations = await auction.getAuctionParticipations({
 			order: [sequelize.fn('RAND')],

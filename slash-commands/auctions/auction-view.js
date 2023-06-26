@@ -63,7 +63,9 @@ module.exports = {
 				participation.entries,
 			);
 		}
-		else {embed = await auctionEmbed(auction, guild);}
+		else {
+			embed = await auctionEmbed(auction, guild);
+		}
 
 		const message = {
 			embeds: [embed],

@@ -6,11 +6,13 @@ require('dotenv').config();
 const { TOKEN } = process.env;
 
 // Create a new client instance
-const client = new Client({ intents: [
-	GatewayIntentBits.Guilds,
-	GatewayIntentBits.GuildMessages,
-	GatewayIntentBits.MessageContent,
-] });
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+	],
+});
 
 client.slashCommands = new Collection();
 const slashCommandFolders = fs.readdirSync(path.join(__dirname, 'slash-commands'));

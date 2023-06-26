@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Guild } = require('../../models');
-const {DEFAULT_PREFIX} = require('../../config.json');
+const { DEFAULT_PREFIX } = require('../../config.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,7 +12,8 @@ module.exports = {
 		const guild = await Guild.findByPk(client.guildId);
 		if (guild !== null && guild.prefix) {
 			prefix = guild.prefix;
-		} else {
+		}
+		else {
 			prefix = DEFAULT_PREFIX;
 		}
 
@@ -20,7 +21,7 @@ module.exports = {
 			.setTitle('Liste de toutes les commandes:')
 			.setDescription(
 				client.slashCommands.map(command => `**/${command.data.name}** - ${command.data.description}`).join('\n') + '\n' +
-				client.commands.map(command => `**${prefix + command.name}** - ${command.description}`).join('\n')
+				client.commands.map(command => `**${prefix + command.name}** - ${command.description}`).join('\n'),
 			);
 
 		return interaction.reply({ embeds: [embed] });

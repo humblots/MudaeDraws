@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
 			this.hasMany(models.Auction, { foreignKey: 'guild_id' });
 		}
 	}
+
 	Guild.init({
 		id: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
 		prefix: { type: DataTypes.STRING, defaultValue: null },
