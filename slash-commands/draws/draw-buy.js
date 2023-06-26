@@ -1,32 +1,33 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Auction, AuctionParticipation, User } = require('../../models');
+const { Draw, DrawParticipation, User } = require('../../models');
 const moment = require('moment');
 
 const exitWord = 'exit';
 
-const buyingProcess = async (channel, member, auction, amount) => {
-	await awaitGivek(channel, member, auction, amount);
-	await awaitValidation(channel, member, auction, amount);
+const buyingProcess = async (channel, member, draw, amount) => {
+	await awaitGivek(channel, member, draw, amount);
+	await awaitValidation(channel, member, draw, amount);
 };
 
-const awaitGivek = async (channel, member, auction, amount) => {
+const awaitGivek = async (channel, member, draw, amount) => {
 	const command = '$givek';
 	const filter = (m) =>
 		(m.content.toLowerCase().startsWith(command) ||
-      m.content.toLowerCase() === exitWord) &&
-    m.author.id === member.id;
+			m.content.toLowerCase() === exitWord) &&
+		m.author.id === member.id;
 
 	const collector = channel.createMessageCollector({ filter, time: 60 * 1000 });
 	return new Promise((resolve, reject) => {
 		collector.on('collect', (m) => {
 			collector.resetTimer({ time: 20 * 1000 });
-			const args = m.content.substring(command.length).trim().split(/\s+/);
 
 			if (m.content.toLowerCase() === exitWord) {
 				return collector.stop('end');
 			}
 
-			if (!args[0].includes(auction.user_id)) {
+			const args = m.content.substring(command.length).trim().split(/\s+/);
+
+			if (!args[0].includes(draw.user_id)) {
 				m.react('❌');
 				console.log(args[0]);
 				return channel.send('Vérifiez l\'id');
@@ -49,12 +50,13 @@ const awaitGivek = async (channel, member, auction, amount) => {
 	});
 };
 
-const awaitValidation = async (channel, member, auction, amount) => {
+const awaitValidation = async (channel, member, draw, amount) => {
 	const okChoices = ['oui', 'yes', 'o', 'y'];
 	const cancelChoices = ['no', 'n'];
 	const filter = (m) =>
-		okChoices.concat(cancelChoices).includes(m.content.toLowerCase()) ||
-    (m.content.toLowerCase() === exitWord && m.author.id === member.id);
+		(okChoices.concat(cancelChoices).includes(m.content.toLowerCase()) ||
+			m.content.toLowerCase() === exitWord) &&
+		m.author.id === member.id;
 
 	const collector = channel.createMessageCollector({ filter, time: 15 * 1000 });
 	return new Promise((resolve, reject) => {
@@ -78,9 +80,9 @@ const awaitValidation = async (channel, member, auction, amount) => {
 				mudaeCollector.on('collect', (m) => {
 					if (
 						m.content.includes(member.id) &&
-            m.content.includes(amount) &&
-            m.content.includes(':kakera:469835869059153940') &&
-            m.content.includes(auction.user_id)
+						m.content.includes(amount) &&
+						m.content.includes(':kakera:469835869059153940') &&
+						m.content.includes(draw.user_id)
 					) {
 						resolve(true);
 						return mudaeCollector.stop('confirmed');
@@ -106,26 +108,26 @@ const awaitValidation = async (channel, member, auction, amount) => {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('abuy')
-		.setDescription('Buy auction entries')
+		.setName('drawbuy')
+		.setDescription('Permet d\'acheter des participations à un tirage.')
 		.setDMPermission(false)
 		.addIntegerOption((option) =>
 			option
-				.setName('auction-id')
-				.setDescription('Auction\'s id')
+				.setName('draw-id')
+				.setDescription('Id du tirage')
 				.setRequired(true),
 		)
 		.addIntegerOption((option) =>
 			option
 				.setName('entries')
-				.setDescription('Number of entries to buy')
+				.setDescription('Nombre de participations')
 				.setMinValue(1)
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
 		await interaction.deferReply();
-		const { options, member, channel } = interaction;
-		const id = options.getInteger('auction-id');
+		const { options, member, channel, guild } = interaction;
+		const id = options.getInteger('draw-id');
 		const entries = options.getInteger('entries');
 		let userParticipation;
 
@@ -137,27 +139,30 @@ module.exports = {
 			);
 		}
 
-		const auction = await Auction.findByPk(id);
-		if (auction === null) {
+		const draw = await Draw.findOne({ where: { id, guild_id: guild.id } });
+		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
-		if (auction.status !== Auction.ONGOING_STATUS) {
+
+		if (draw.status !== Draw.ONGOING_STATUS) {
 			return await interaction.editReply(
 				'Ce tirage n\'accepte pas de participation.',
 			);
 		}
-		if (auction.user_id === member.id) {
+
+		if (draw.user_id === member.id) {
 			return await interaction.editReply('Ce tirage t\'appartiens.');
 		}
-		if (auction.max_entries !== null || auction.max_user_entries !== null) {
-			userParticipation = await AuctionParticipation.findOne({
-				where: { user_id: member.id, auction_id: id },
+
+		if (draw.max_entries !== null || draw.max_user_entries !== null) {
+			userParticipation = await DrawParticipation.findOne({
+				where: { user_id: member.id, draw_id: id },
 			});
-			if (auction.max_user_entries) {
+			if (draw.max_user_entries) {
 				if (
-					entries > auction.max_user_entries ||
-          (userParticipation &&
-            userParticipation.entries + entries > auction.max_user_entries)
+					entries > draw.max_user_entries ||
+					(userParticipation &&
+						userParticipation.entries + entries > draw.max_user_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée par utilisateur pour ce tirage.',
@@ -165,13 +170,13 @@ module.exports = {
 				}
 			}
 
-			if (auction.max_entries) {
-				const entriesSum = await AuctionParticipation.sum('entries', {
-					where: { auction_id: id },
+			if (draw.max_entries) {
+				const entriesSum = await DrawParticipation.sum('entries', {
+					where: { draw_id: id },
 				});
 				if (
-					entries > auction.max_entries ||
-          (userParticipation && entriesSum + entries > auction.max_entries)
+					entries > draw.max_entries ||
+					(entriesSum + entries > draw.max_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée pour ce tirage.',
@@ -180,18 +185,19 @@ module.exports = {
 			}
 		}
 
-		const amount = entries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price);
+		const amount = entries * (draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price);
 		if (amount !== 0) {
 			await interaction.editReply(
-				`Pour confirmer ton achat, tapes la commande: \`$givek ${auction.user_id} ${amount}\`\n` +
-        'Une fois la commande validée, ton achat sera effectif.:\n' +
-        `Pour annuler l'opération, tapes \`${exitWord}\`.`,
+				`Pour confirmer ton achat, tapes la commande: $givek ${draw.user_id} ${amount}\n` +
+				':warning: Seule cette commande sera prise en compte !\n' +
+				'Une fois la commande validée, ton achat sera effectif.:\n' +
+				`Pour annuler l'opération, tapes ${exitWord}.`,
 			);
 
 			await user.update({ occupied: true });
 
 			try {
-				await buyingProcess(channel, member, auction, amount);
+				await buyingProcess(channel, member, draw, amount);
 			}
 			catch (e) {
 				await user.update({ occupied: false });
@@ -199,19 +205,19 @@ module.exports = {
 			}
 
 			await user.update({ occupied: false });
-			if (moment(auction.end_date).isBefore(moment())) {
+			if (moment(draw.end_date).isBefore(moment())) {
 				return await interaction.followUp({
 					content: 'Le tirage a eu le temps de se terminer, dommage pour toi. ¯\\_(ツ)_/¯\n' +
-            'Demande vite un remboursement !',
+						'Demande vite un remboursement !',
 				});
 			}
 		}
 
 		if (!userParticipation) {
-			const [userParticipations, created] = await AuctionParticipation.findOrCreate({
+			const [userParticipations, created] = await DrawParticipation.findOrCreate({
 				where: {
 					user_id: member.id,
-					auction_id: id,
+					draw_id: id,
 				},
 				defaults: {
 					entries: entries,

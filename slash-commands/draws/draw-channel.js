@@ -3,13 +3,13 @@ const { Guild } = require('../../models');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('achannel')
-		.setDescription('Set an auction channel')
+		.setName('drawchannel')
+		.setDescription('Permet de choisir un channel pour les annonces des tirages')
 		.setDMPermission(false)
 		.setDefaultMemberPermissions(0)
 		.addChannelOption(option =>
 			option.setName('channel')
-				.setDescription('Auction\'s channel')
+				.setDescription('Channel pour les annonces')
 				.setRequired(true),
 		),
 	async execute(client, interaction) {

@@ -1,25 +1,25 @@
 const { EmbedBuilder } = require('discord.js');
-const { Auction } = require('../models');
+const { Draw } = require('../models');
 const moment = require('moment');
 const { getMember } = require('./discord-getters');
 
-const auctionEmbed = async (auction, guild, pagination = null) => {
-	const startDateTimeStamp = moment(auction.start_date).unix();
-	const endDateTimeStamp = moment(auction.end_date).unix();
-	const member = await getMember(guild, auction.user_id);
+const drawEmbed = async (draw, guild, pagination = null) => {
+	const startDateTimeStamp = moment(draw.start_date).unix();
+	const endDateTimeStamp = moment(draw.end_date).unix();
+	const member = await getMember(guild, draw.user_id);
 	const paginationTrace = pagination ?
 		` - ${pagination.index + 1}/${pagination.count}` :
 		'';
 
 	const embed = new EmbedBuilder()
-		.setColor(auction.getEmbedColor())
-		.setTitle('Tirage pour ' + auction.character)
+		.setColor(draw.getEmbedColor())
+		.setTitle('Tirage pour ' + draw.character)
 		.setDescription(
 			`**Prix de l'entrée:** ${
-				auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
+				draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price
 			}\n` +
-      `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
-      `**Entrées max total:** ${auction.max_entries || 'illimité'}`,
+			`**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
+			`**Entrées max total:** ${draw.max_entries || 'illimité'}`,
 		)
 		.addFields({
 			name: 'Date de début',
@@ -28,18 +28,18 @@ const auctionEmbed = async (auction, guild, pagination = null) => {
 			name: 'Date de fin',
 			value: `<t:${endDateTimeStamp}:R> (<t:${endDateTimeStamp}>)`,
 		})
-		.setImage(auction.img_url)
+		.setImage(draw.img_url)
 		.setFooter({
-			text: `Par ${member ? member.displayName : auction.user_id}\n` +
-        `id: ${auction.id} - ${auction.status}` +
-        paginationTrace,
+			text: `Par ${member ? member.displayName : draw.user_id}\n` +
+				`id: ${draw.id} - ${draw.status}` +
+				paginationTrace,
 			iconURL: member ? member.user.avatarURL() : null,
 		});
 
 	return embed;
 };
 
-const auctionListEmbed = async (pagination, rows, guild) => {
+const drawListEmbed = async (pagination, rows, guild) => {
 	const { count, limit, offset } = pagination;
 	const embed = new EmbedBuilder();
 	embed.setAuthor({
@@ -47,9 +47,9 @@ const auctionListEmbed = async (pagination, rows, guild) => {
 		iconURL: guild.iconURL(),
 	});
 
-	for (const auction of rows) {
-		const member = await getMember(guild, auction.user_id);
-		_addAuctionField(embed, auction, member);
+	for (const draw of rows) {
+		const member = await getMember(guild, draw.user_id);
+		_addDrawField(embed, draw, member);
 	}
 
 	embed.setFooter({
@@ -60,7 +60,7 @@ const auctionListEmbed = async (pagination, rows, guild) => {
 	return embed;
 };
 
-const userAuctionListEmbed = (pagination, rows, guild, member) => {
+const userDrawListEmbed = (pagination, rows, guild, member) => {
 	const { count, limit, offset } = pagination;
 	const embed = new EmbedBuilder();
 	embed.setAuthor({
@@ -70,8 +70,8 @@ const userAuctionListEmbed = (pagination, rows, guild, member) => {
 		iconURL: member ? member.user.avatarURL() : null,
 	});
 
-	for (const auction of rows) {
-		_addAuctionField(embed, auction, member);
+	for (const draw of rows) {
+		_addDrawField(embed, draw, member);
 	}
 
 	embed.setFooter({
@@ -82,38 +82,38 @@ const userAuctionListEmbed = (pagination, rows, guild, member) => {
 	return embed;
 };
 
-const _addAuctionField = (embed, auction, member) => {
-	const startDateTimeStamp = moment(auction.start_date).unix();
-	const endDateTimeStamp = moment(auction.end_date).unix();
+const _addDrawField = (embed, draw, member) => {
+	const startDateTimeStamp = moment(draw.start_date).unix();
+	const endDateTimeStamp = moment(draw.end_date).unix();
 
 	embed.addFields({
-		name: `${auction.getStatusSymbol()} ${auction.status} - ` +
-      `${auction.character} - Id: ${auction.id} - Par ${member ? member.displayName : auction.user_id}`,
+		name: `${draw.getStatusSymbol()} ${draw.status} - ` +
+			`${draw.character} - Id: ${draw.id} - Par ${member ? member.displayName : draw.user_id}`,
 		value: `**Prix de l'entrée:** ${
-			auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price
+			draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price
 		}\n` +
-      `**Entrées max par participants:** ${auction.max_user_entries || 'illimité'}\n` +
-      `**Entrées max total:** ${auction.max_entries || 'illimité'}\n` +
-      `**Date de début:** <t:${startDateTimeStamp}:R>\n` +
-      `**Date de fin:** <t:${endDateTimeStamp}:R>`,
+			`**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
+			`**Entrées max total:** ${draw.max_entries || 'illimité'}\n` +
+			`**Date de début:** <t:${startDateTimeStamp}:R>\n` +
+			`**Date de fin:** <t:${endDateTimeStamp}:R>`,
 	});
 };
 
 const participationsEmbed = async (
-	auction,
+	draw,
 	guild,
 	participations,
 	entriesSum,
 ) => {
-	const auctionMember = await getMember(guild, auction.user_id);
-	const price = auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price;
+	const drawMember = await getMember(guild, draw.user_id);
+	const price = draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price;
 	const embed = new EmbedBuilder()
-		.setColor(auction.getEmbedColor())
-		.setTitle('Participations pour le tirage de ' + auction.character)
+		.setColor(draw.getEmbedColor())
+		.setTitle('Participations pour le tirage de ' + draw.character)
 		.setFooter({
-			text: `Par ${auctionMember ? auctionMember.displayName : auction.user_id}\n` +
-        `id: ${auction.id} - ${auction.status}`,
-			iconURL: auctionMember ? auctionMember.user.avatarURL() : null,
+			text: `Par ${drawMember ? drawMember.displayName : draw.user_id}\n` +
+				`id: ${draw.id} - ${draw.status}`,
+			iconURL: drawMember ? drawMember.user.avatarURL() : null,
 		});
 
 	if (!participations.length) {
@@ -125,15 +125,15 @@ const participationsEmbed = async (
 		const member = await getMember(guild, participation.user_id);
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
-			value: `Nombre d'entrées: ${participation.entries}/${auction.max_user_entries || auction.max_entries || '∞'} ` +
-        `- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
-        `Total dépensé: ${participation.entries * price}`,
+			value: `Nombre d'entrées: ${participation.entries}/${draw.max_user_entries || draw.max_entries || '∞'} ` +
+				`- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
+				`Total dépensé: ${participation.entries * price}`,
 		});
 	}
 
 	let description;
-	if (auction.max_entries) {
-		description = `**Nombre d'entrées restantes: ${auction.max_entries - entriesSum}**`;
+	if (draw.max_entries) {
+		description = `**Nombre d'entrées restantes: ${draw.max_entries - entriesSum}**`;
 	}
 	else {
 		description = '**Nombre d\'entrées restantes: ∞**';
@@ -143,29 +143,29 @@ const participationsEmbed = async (
 	return embed;
 };
 
-const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
+const winnerEmbed = async (draw, guild, winnerId, winnerEntries) => {
 	const winner = await getMember(guild, winnerId);
-	const auctionMember = await getMember(guild, auction.user_id);
+	const drawMember = await getMember(guild, draw.user_id);
 
 	const embed = new EmbedBuilder()
 		.setAuthor({
-			name: `Tirage pour ${auction.character}`,
+			name: `Tirage pour ${draw.character}`,
 			iconURL: guild.iconURL(),
 		})
-		.setColor(auction.getEmbedColor())
+		.setColor(draw.getEmbedColor())
 		.setTitle(
-			`Le vainqueur est ${winner ? winner.displayName : auction.user_id} !`,
+			`Le vainqueur est ${winner ? winner.displayName : draw.user_id} !`,
 		)
 		.setDescription(
 			`**Nombre d'entrées:** ${winnerEntries}\n` +
-      `**Total dépensé:** ${winnerEntries * (auction.entry_price === null ? Auction.DEFAULT_PRICE : auction.entry_price)}\n` +
-      'Fais-un signe à l\'organisateur pour récupérer ton gain',
+			`**Total dépensé:** ${winnerEntries * (draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price)}\n` +
+			'Fais-un signe à l\'organisateur pour récupérer ton gain',
 		)
-		.setImage(auction.img_url)
+		.setImage(draw.img_url)
 		.setFooter({
-			text: `Par ${auctionMember ? auctionMember.displayName : auction.user_id}\n` +
-        `id: ${auction.id} - ${auction.status}`,
-			iconURL: auctionMember ? auctionMember.user.avatarURL() : null,
+			text: `Par ${drawMember ? drawMember.displayName : draw.user_id}\n` +
+				`id: ${draw.id} - ${draw.status}`,
+			iconURL: drawMember ? drawMember.user.avatarURL() : null,
 		});
 
 	if (winner) {
@@ -176,9 +176,9 @@ const winnerEmbed = async (auction, guild, winnerId, winnerEntries) => {
 };
 
 module.exports = {
-	auctionEmbed,
-	auctionListEmbed,
-	userAuctionListEmbed,
+	drawEmbed,
+	drawListEmbed,
+	userDrawListEmbed,
 	participationsEmbed,
 	winnerEmbed,
 };

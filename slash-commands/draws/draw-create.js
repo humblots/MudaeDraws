@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { User, Auction, Guild } = require('../../models');
+const { User, Draw, Guild } = require('../../models');
 const moment = require('moment');
-const { auctionEmbed } = require('../../utils/embeds');
+const { drawEmbed } = require('../../utils/embeds');
 const { getChannel } = require('../../utils/discord-getters');
 
 const urlRegExp = new RegExp(
@@ -10,47 +10,47 @@ const urlRegExp = new RegExp(
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('acreate')
-		.setDescription('Creates an auction')
+		.setName('drawcreate')
+		.setDescription('Crée un nouveau tirage.')
 		.setDMPermission(false)
 		.addStringOption((option) =>
 			option
 				.setName('character')
-				.setDescription('Character to auction')
+				.setDescription('Personnage à gagner')
 				.setMaxLength(255)
 				.setRequired(true),
 		)
 		.addStringOption((option) =>
 			option
 				.setName('image')
-				.setDescription('Character\'s image link')
+				.setDescription('Image du personnage')
 				.setRequired(true),
 		)
 		.addStringOption((option) =>
 			option
 				.setName('start-date')
 				.setDescription(
-					'Date, Timestamp... (e.g: 24/07/2022 15:30). Now by default',
+					'Date, Timestamp... (e.g: 24/07/2022 15:30). Date actuelle par défaut',
 				),
 		)
 		.addStringOption((option) =>
 			option
 				.setName('end-date')
 				.setDescription(
-					`Date, Timestamp... (e.g:24/07/2022 15:30). ${Auction.DEFAULT_END_AFTER} day(s) after start by default`,
+					`Date, Timestamp... (e.g: 24/07/2022 15:30). ${Draw.DEFAULT_END_AFTER} jours après la date de début par défaut`,
 				),
 		)
 		.addIntegerOption((option) =>
 			option
 				.setName('entry-price')
-				.setDescription(`Entry price, ${Auction.DEFAULT_PRICE} by default`)
+				.setDescription(`Prix d'entrée, ${Draw.DEFAULT_PRICE} par défaut`)
 				.setMinValue(0),
 		)
 		.addIntegerOption((option) =>
 			option
 				.setName('max-user-entries')
 				.setDescription(
-					'Max number of entries that a user can purchase, unlimited by default',
+					'Nombre maximum d\'entrées par utilisateur, illimité par défaut',
 				)
 				.setMinValue(1),
 		)
@@ -58,7 +58,7 @@ module.exports = {
 			option
 				.setName('max-entries')
 				.setDescription(
-					'Max number of entries for the auction, unlimited by default',
+					'Nombre maximum d\'entrées, illimité par défaut',
 				)
 				.setMinValue(1),
 		),
@@ -66,9 +66,20 @@ module.exports = {
 		await interaction.deferReply();
 		const { guild, options } = interaction;
 
+		const [guildModel] = await Guild.findOrCreate({
+			where: { id: guild.id },
+		});
+
+		if (!guildModel.channel) {
+			return await interaction.editReply(
+				'Veuillez définir un channel pour l\'envoi des résultats avant de créer des tirages.',
+			);
+		}
+
 		const startDateInput = options.getString('start-date');
 		const createdAt = new moment();
 		createdAt.seconds(0);
+
 		const startDate = startDateInput ?
 			moment(startDateInput, 'DD/MM/YYYY h:mm') :
 			createdAt.clone();
@@ -86,7 +97,7 @@ module.exports = {
 		const endDateInput = options.getString('end-date');
 		const endDate = endDateInput ?
 			moment(endDateInput, 'DD/MM/YYYY h:mm') :
-			startDate.clone().add(Auction.DEFAULT_END_AFTER, 'days');
+			startDate.clone().add(Draw.DEFAULT_END_AFTER, 'days');
 
 		if (!endDate.isValid()) {
 			return await interaction.editReply(
@@ -115,20 +126,10 @@ module.exports = {
 			);
 		}
 
-		const [guildModel] = await Guild.findOrCreate({
-			where: { id: guild.id },
-		});
-
-		if (!guildModel.channel) {
-			return await interaction.editReply(
-				'Veuillez définir un channel pour l\'envoi des résultats avant de créer des tirages (/achannel).',
-			);
-		}
-
 		const channel = await getChannel(guild, guildModel.channel);
 		if (!channel) {
 			return await interaction.editReply(
-				'Veuillez redéfinir un channel pour l\'envoi des résultats avant de créer des tirages, le précédent semble être inexistant (/achannel).',
+				'Veuillez redéfinir un channel pour l\'envoi des résultats avant de créer des tirages, le précédent semble être inexistant.',
 			);
 		}
 
@@ -142,11 +143,9 @@ module.exports = {
 
 		const character = options.getString('character');
 		const price = options.getInteger('entry-price');
-		let status;
-		if (createdAt.isBefore(startDate)) status = Auction.PENDING_STATUS;
-		else status = Auction.ONGOING_STATUS;
+		const status = createdAt.isBefore(startDate) ? Draw.PENDING_STATUS : Draw.ONGOING_STATUS;
 
-		const auction = await Auction.create({
+		const draw = await Draw.create({
 			guild_id: guild.id,
 			user_id: userId,
 			character: character,
@@ -161,10 +160,10 @@ module.exports = {
 			status: status,
 		});
 
-		const embed = await auctionEmbed(auction, guild);
+		const embed = await drawEmbed(draw, guild);
 		channel.send({
 			content: `${guildModel.role ? '<@&' + guildModel.role + '>' : ''}` +
-        ` Un nouveau tirage vient d'être créé pour **${auction.character}** !`,
+				` Un nouveau tirage vient d'être créé pour **${draw.character}** !`,
 			embeds: [embed],
 		});
 

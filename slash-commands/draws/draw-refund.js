@@ -3,24 +3,24 @@ const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('arefund')
-		.setDescription('Refund an auction participants')
+		.setName('drawrefund')
+		.setDescription('Permet d\'initier le remboursement d\'un participant')
 		.setDMPermission(false)
 		.addIntegerOption(option =>
-			option.setName('auction-id')
-				.setDescription('Auction\'s id')
+			option.setName('draw-id')
+				.setDescription('Id du tirage')
 				.setRequired(true),
 		)
 		.addStringOption(option =>
 			option.setName('user-id')
-				.setDescription('User\'s id')
+				.setDescription('Id du participant')
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-		await interaction.reply('Temporary disabled');
+		return await interaction.reply('Temporairement désactivé, mort, dead, pcq j\'ai la flemme de le faire');
 		// const { guild, options } = interaction;
 		// const userId = options.getStringOption('user-id');
-		// const auctionId = options.getInteger('auction-id');
+		// const drawId = options.getInteger('draw-id');
 
 		// const [guildModel] = await Guild.find({
 		// 	where: { id: guild.id },

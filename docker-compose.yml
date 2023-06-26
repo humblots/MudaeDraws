@@ -6,14 +6,14 @@ services:
     container_name: ma_adminer
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adminer.rule=Host(`adminer.nwsasr.localhost`)"
+      - "traefik.http.routers.adminer.rule=Host(`HOST`)"
     ports:
       - "41234:8080"
     environment:
       ADMINER_DESIGN: hydra
       ADMINER_DEFAULT_SERVER: ma_mysql
     networks:
-      - mudaeAuctions
+      - mudaeDraws
 
   mysql:
     image: mysql
@@ -25,8 +25,6 @@ services:
     restart: on-failure
     env_file:
       - .env
-    ports:
-      - 3306
     volumes:
       - mudaeDb:/var/lib/mysql
     healthcheck:
@@ -36,7 +34,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - mudaeAuctions
+      - mudaeDraws
 
   cli:
     build: .
@@ -48,11 +46,11 @@ services:
     volumes:
       - ./:/src/
     networks:
-      - mudaeAuctions
+      - mudaeDraws
 
 volumes:
   mudaeDb:
 
 networks:
-  mudaeAuctions:
-    name: "mudaeAuctions"
+  mudaeDraws:
+    name: "mudaeDraws"

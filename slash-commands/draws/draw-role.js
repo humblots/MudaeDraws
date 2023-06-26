@@ -3,13 +3,13 @@ const { Guild } = require('../../models');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('arole')
-		.setDescription('Set a role for different mentions')
+		.setName('drawrole')
+		.setDescription('Permet de choisir un rôle pour les mentions')
 		.setDMPermission(false)
 		.setDefaultMemberPermissions(0)
 		.addRoleOption(option =>
 			option.setName('role')
-				.setDescription('Role for mentions')
+				.setDescription('Rôle à mentionner')
 				.setRequired(true),
 		),
 	async execute(client, interaction) {

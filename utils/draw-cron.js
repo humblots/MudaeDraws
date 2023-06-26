@@ -1,12 +1,12 @@
-const { Auction, AuctionParticipation, Guild } = require('../models');
+const { Draw, DrawParticipation, Guild } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('sequelize');
 const { getGuild, getChannel } = require('./discord-getters');
-const { auctionEmbed, winnerEmbed } = require('./embeds');
+const { drawEmbed, winnerEmbed } = require('./embeds');
 
 const updateStatus = async (client) => {
 	const now = new Date();
-	const auctions = await Auction.findAll({
+	const draws = await Draw.findAll({
 		where: {
 			start_date: {
 				[Op.lte]: now,
@@ -14,23 +14,23 @@ const updateStatus = async (client) => {
 			end_date: {
 				[Op.gt]: now,
 			},
-			status: Auction.PENDING_STATUS,
+			status: Draw.PENDING_STATUS,
 		},
 		include: Guild,
 	});
 
-	for (const auction of auctions) {
-		await auction.update({ status: Auction.ONGOING_STATUS });
-		const { guild, channel } = await getGuildAndChannelFromAuction(
+	for (const draw of draws) {
+		await draw.update({ status: Draw.ONGOING_STATUS });
+		const { guild, channel } = await getGuildAndChannelFromDraw(
 			client,
-			auction.Guild,
+			draw.Guild,
 		);
 		if (!guild || !channel) continue;
 
-		const embed = await auctionEmbed(auction, guild);
+		const embed = await drawEmbed(draw, guild);
 		channel.send({
-			content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '>' : ''}` +
-        ` Le tirage pour **${auction.character}** vient de commencer !`,
+			content: `${draw.Guild.role ? '<@&' + draw.Guild.role + '>' : ''}` +
+				` Le tirage pour **${draw.character}** vient de commencer !`,
 			embeds: [embed],
 		});
 	}
@@ -55,30 +55,30 @@ const weightedDraw = (participations, entriesSum) => {
 };
 
 const pickWinners = async (client) => {
-	const auctions = await Auction.findAll({
+	const draws = await Draw.findAll({
 		where: {
 			end_date: {
 				[Op.lte]: new Date(),
 			},
-			status: Auction.ONGOING_STATUS,
+			status: Draw.ONGOING_STATUS,
 		},
 		include: Guild,
 	});
 
-	for (const auction of auctions) {
-		await auction.update({ status: Auction.FINISHED_STATUS });
+	for (const draw of draws) {
+		await draw.update({ status: Draw.FINISHED_STATUS });
 
-		const { guild, channel } = await getGuildAndChannelFromAuction(
+		const { guild, channel } = await getGuildAndChannelFromDraw(
 			client,
-			auction.Guild,
+			draw.Guild,
 		);
 		if (!guild || !channel) continue;
 
 		const message =
-      `${auction.Guild.role ? '<@&' + auction.Guild.role + '>' : ''}` +
-      ` Le tirage pour **${auction.character}** vient de se terminer !`;
+			`${draw.Guild.role ? '<@&' + draw.Guild.role + '>' : ''}` +
+			` Le tirage pour **${draw.character}** vient de se terminer !`;
 
-		const participations = await auction.getAuctionParticipations({
+		const participations = await draw.getDrawParticipations({
 			order: [sequelize.fn('RAND')],
 		});
 		if (!participations.length) {
@@ -86,14 +86,14 @@ const pickWinners = async (client) => {
 			continue;
 		}
 
-		const entriesSum = await AuctionParticipation.sum('entries', {
-			where: { auction_id: auction.id },
+		const entriesSum = await DrawParticipation.sum('entries', {
+			where: { draw_id: draw.id },
 		});
 		const winner = weightedDraw(participations, entriesSum);
 		if (!winner) continue;
-		auction.update({ winner_id: winner.id });
+		draw.update({ winner_id: winner.id });
 		const embed = await winnerEmbed(
-			auction,
+			draw,
 			guild,
 			winner.id,
 			winner.weight * entriesSum,
@@ -102,7 +102,7 @@ const pickWinners = async (client) => {
 	}
 };
 
-const getGuildAndChannelFromAuction = async (client, guildModel) => {
+const getGuildAndChannelFromDraw = async (client, guildModel) => {
 	const guild = await getGuild(client, guildModel.id);
 	if (!guild) return { guild: null, channel: null };
 	const channel = await getChannel(guild, guildModel.channel);
@@ -110,6 +110,6 @@ const getGuildAndChannelFromAuction = async (client, guildModel) => {
 };
 
 module.exports = {
-	updateStatus: updateStatus,
-	pickWinners: pickWinners,
+	updateStatus,
+	pickWinners,
 };

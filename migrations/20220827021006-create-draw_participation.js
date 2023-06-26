@@ -1,17 +1,17 @@
 'use strict';
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable('auction_participations', {
+		await queryInterface.createTable('draw_participations', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER,
 			},
-			auction_id: {
+			draw_id: {
 				type: Sequelize.INTEGER,
 				references: {
-					model: 'auctions',
+					model: 'draws',
 					key: 'id',
 				},
 				allowNull: false,
@@ -39,6 +39,6 @@ module.exports = {
 		});
 	},
 	async down(queryInterface) {
-		await queryInterface.dropTable('auction_participations');
+		await queryInterface.dropTable('draw_participations');
 	},
 };

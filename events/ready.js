@@ -1,9 +1,9 @@
 const { CronJob } = require('cron');
 const { DEFAULT_PREFIX } = require('../config.json');
-const { updateStatus, pickWinners } = require('../utils/auction-cron');
+const { updateStatus, pickWinners } = require('../utils/draw-cron');
 
-// Mass updates on pending auctions
-// Then Mass updates on finished auctions, results calculations and sending.
+// Mass updates on pending draws
+// Then Mass updates on finished draws, results calculations and sending.
 const onTick = async client => {
 	await pickWinners(client);
 	await updateStatus(client);

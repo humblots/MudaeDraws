@@ -1,22 +1,22 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Auction, Guild } = require('../../models');
-const { auctionEmbed } = require('../../utils/embeds');
+const { Draw, Guild } = require('../../models');
+const { drawEmbed } = require('../../utils/embeds');
 const { getChannel } = require('../../utils/discord-getters');
 const moment = require('moment');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('aupdate')
-		.setDescription('Update an auction')
+		.setName('drawupdate')
+		.setDescription('Permet de modifier un tirage.')
 		.setDMPermission(false)
 		.addIntegerOption((option) =>
 			option
-				.setName('auction-id')
-				.setDescription('Auction\'s id')
+				.setName('draw-id')
+				.setDescription('Id du tirage')
 				.setRequired(true),
 		)
 		.addStringOption((option) =>
-			option.setName('image').setDescription('Character\'s image link'),
+			option.setName('image').setDescription('Image du personnage'),
 		)
 		.addStringOption((option) =>
 			option
@@ -29,13 +29,15 @@ module.exports = {
 				.setDescription('Date, Timestamp... (e.g: 24/07/2022 15:30)'),
 		)
 		.addIntegerOption((option) =>
-			option.setName('entry-price').setDescription('Entry price').setMinValue(1),
+			option.setName('entry-price')
+				.setDescription('Prix d\'entrée')
+				.setMinValue(1),
 		)
 		.addIntegerOption((option) =>
 			option
 				.setName('max-user-entries')
 				.setDescription(
-					'Max number of entries that a user can purchase, unlimited by default',
+					'Nombre maximum d\'entrées par utilisateur, illimité par défaut',
 				)
 				.setMinValue(1),
 		)
@@ -43,7 +45,7 @@ module.exports = {
 			option
 				.setName('max-entries')
 				.setDescription(
-					'Max number of entries for the auction, unlimited by default',
+					'Nombre maximum d\'entrées, illimité par défaut',
 				)
 				.setMinValue(1),
 		),
@@ -51,15 +53,15 @@ module.exports = {
 		await interaction.deferReply();
 		const { options, guild, member } = interaction;
 
-		const id = options.getInteger('auction-id');
-		const auction = await Auction.findByPk(id, { include: Guild });
-		if (auction === null) {
+		const id = options.getInteger('draw-id');
+		const draw = await Draw.findOne({ where: { id, guild_id: guild.id }, include: Guild });
+		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
 
 		if (
-			auction.user_id !== member.id ||
-      auction.guild_id !== interaction.guildId
+			draw.user_id !== member.id ||
+			draw.guild_id !== guild.id
 		) {
 			return await interaction.editReply(
 				'Tu n\'as pas le droit d\'éditer ce tirage.',
@@ -73,13 +75,15 @@ module.exports = {
 			maxEntries = options.getInteger('max-entries'),
 			maxUserEntries = options.getInteger('max-user-entries');
 
-		if (auction.status !== Auction.PENDING_STATUS) {
+		if (draw.status !== Draw.PENDING_STATUS) {
 			if (endDateInput || startDateInput || price !== null || maxEntries || maxUserEntries) {
 				return await interaction.editReply(
 					'Seule l\'image de ce tirage peut-être modifiée.',
 				);
 			}
-			auction.img_url = img;
+			if (img) {
+				draw.img_url = img;
+			}
 		}
 		else {
 			// End Date handling
@@ -95,7 +99,7 @@ module.exports = {
 						'La nouvelle date de fin ne peut pas être dans le passé.',
 					);
 				}
-				auction.end_date = endDate.toDate();
+				draw.end_date = endDate.toDate();
 			}
 
 			// Start Date handling
@@ -111,55 +115,50 @@ module.exports = {
 						'La nouvelle date de début ne peut pas être dans le passé.',
 					);
 				}
-				if (startDate.isSameOrAfter(moment(auction.end_date))) {
+				if (startDate.isSameOrAfter(moment(draw.end_date))) {
 					return await interaction.editReply(
 						'La nouvelle date de début ne peut pas avoir lieu après la date de fin.',
 					);
 				}
-				auction.start_date = startDate.toDate();
+				draw.start_date = startDate.toDate();
 			}
 
 			if (img) {
-				auction.img_url = img;
+				draw.img_url = img;
 			}
 			if (price !== null) {
-				auction.entry_price = price;
+				draw.entry_price = price;
 			}
 
-			auction.max_entries = maxEntries;
-
-			if (maxUserEntries === null) {
-				auction.max_user_entries = null;
-			}
-			else if (auction.max_entries === null) {
-				auction.max_user_entries = maxUserEntries;
-			}
-			else if (maxUserEntries > auction.max_entries) {
+			if (maxEntries && maxEntries < maxUserEntries) {
 				return await interaction.editReply(
 					'Le nombre maximal d\'entrées par utilisateur doit être inférieur aux nombre maximal d\'entrées total du tirage.',
 				);
 			}
+
+			draw.max_entries = maxEntries;
+			draw.max_user_entries = maxUserEntries;
 		}
 
-		if (auction.changed()) {
-			await auction.save();
-			const embed = await auctionEmbed(auction, guild);
+		if (draw.changed()) {
+			await draw.save();
+			const embed = await drawEmbed(draw, guild);
 			const message = {
-				content: `${auction.Guild.role ? '<@&' + auction.Guild.role + '> ' : ''}` +
-          `Le tirage pour ${auction.character} a été mis à jour !`,
+				content: `${draw.Guild.role ? '<@&' + draw.Guild.role + '> ' : ''}` +
+					`Le tirage pour ${draw.character} a été mis à jour !`,
 				embeds: [embed],
 			};
-			if (auction.Guild.channel !== null) {
-				const channel = await getChannel(guild, auction.Guild.channel);
+			if (draw.Guild.channel !== null) {
+				const channel = await getChannel(guild, draw.Guild.channel);
 				channel.send(message);
-				await interaction.editReply('Done.');
+				return await interaction.editReply('Done.');
 			}
 			else {
-				await interaction.editReply(message);
+				return await interaction.editReply(message);
 			}
 		}
 		else {
-			await interaction.editReply('Aucun changement.');
+			return await interaction.editReply('Aucun changement.');
 		}
 	},
 };
