@@ -6,10 +6,7 @@ services:
     container_name: ma_adminer
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adminer.rule=Host(`adminer.shumblot.fr`)"
-      - "traefik.http.routers.adminer.entrypoints=websecure"
-      - "traefik.http.routers.adminer.tls=true"
-      - "traefik.http.routers.adminer.tls.certresolver=le"
+      - "traefik.http.routers.adminer.rule=Host(`adminer.nwsasr.localhost`)"
     ports:
       - "41234:8080"
     environment:
@@ -26,20 +23,18 @@ services:
       sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &&
       echo $TZ > /etc/timezone"
     restart: on-failure
-    environment:
-      MYSQL_DATABASE: mudae_auctions
-      MYSQL_ROOT_PASSWORD: Secured123+ 
-      TZ: Europe/Paris
+    env_file:
+      - .env
     ports:
       - 3306
     volumes:
       - mudaeDb:/var/lib/mysql
     healthcheck:
-      test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
-      timeout: 10s
+      test: [ "CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u$$MYSQL_USER', '-p$$MYSQL_PASSWORD' ]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
       retries: 10
-    cap_add:
-      - SYS_NICE
     networks:
       - mudaeAuctions
 
