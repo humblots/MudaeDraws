@@ -13,7 +13,8 @@
     "database": "",
     "host": "",
     "port": 3306,
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging" : false
   },
   "production": {
     "username": "",
@@ -21,8 +22,8 @@
     "database": "",
     "host": "",
     "port": 3306,
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging" : false
   },
   "DEFAULT_PREFIX": "$"
 }
-  
