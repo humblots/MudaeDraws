@@ -6,9 +6,7 @@ services:
     container_name: ma_adminer
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adminer.rule=Host(`HOST`)"
-    ports:
-      - "41234:8080"
+      - "traefik.http.routers.mudaedraws_adminer.rule=Host(`HOST`)"
     environment:
       ADMINER_DESIGN: hydra
       ADMINER_DEFAULT_SERVER: ma_mysql
