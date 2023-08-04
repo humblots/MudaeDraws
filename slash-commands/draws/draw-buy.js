@@ -75,7 +75,7 @@ const awaitValidation = async (channel, member, draw, amount) => {
 				const mudaeFilter = (m) => m.author.id === '432610292342587392';
 				const mudaeCollector = channel.createMessageCollector({
 					mudaeFilter,
-					time: 5 * 1000,
+					time: 10 * 1000,
 				});
 				mudaeCollector.on('collect', (m) => {
 					if (
