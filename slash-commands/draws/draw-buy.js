@@ -94,7 +94,7 @@ const awaitValidation = async (channel, member, draw, amount) => {
 				});
 
 				mudaeCollector.on('end', (mudaeCollected, mudaeReason) => {
-					if (mudaeReason === 'time') reject('L\'achat n\'a pas abouti.');
+					if (mudaeReason === 'time') reject('L\'achat n\'a pas abouti');
 					if (mudaeReason === 'end') reject('Kakera insuffisant');
 				});
 				return;

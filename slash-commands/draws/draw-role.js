@@ -4,13 +4,12 @@ const { Guild } = require('../../models');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('drawrole')
-		.setDescription('Permet de choisir un rôle pour les mentions')
+		.setDescription('Permet de choisir un rôle pour les mentions, laisser vide pour retirer le rôle actuel')
 		.setDMPermission(false)
 		.setDefaultMemberPermissions(0)
 		.addRoleOption(option =>
 			option.setName('role')
 				.setDescription('Rôle à mentionner')
-				.setRequired(true),
 		),
 	async execute(client, interaction) {
 		const role = interaction.options.getRole('role');
@@ -19,8 +18,16 @@ module.exports = {
 			where: { id: interaction.guildId },
 		});
 
-		guild.role = role.id;
+		let message;
+		if (role) {
+			message = 'Rôle défini !'
+			guild.role = role.id;
+		} else {
+			message = guild.role ? 'Rôle supprimé !' : "Aucun rôle n'est défini"
+			guild.role = null
+		}
+
 		await guild.save();
-		await interaction.reply('Role défini !');
+		await interaction.reply(message, );
 	},
 };
