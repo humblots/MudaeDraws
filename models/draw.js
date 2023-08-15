@@ -5,10 +5,10 @@ const {
 module.exports = (sequelize, DataTypes) => {
 	class Draw extends Model {
 		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
 		static associate(models) {
 			this.belongsTo(models.User, { foreignKey: 'user_id' });
 			this.belongsTo(models.Guild, { foreignKey: 'guild_id' });
@@ -25,18 +25,18 @@ module.exports = (sequelize, DataTypes) => {
 	}
 
 	/**
-	 * Draw's default price
-	 */
+   * Draw's default price
+   */
 	Draw.DEFAULT_PRICE = 1;
 
 	/**
-	 * Draw's default end after set days
-	 */
+   * Draw's default end after set days
+   */
 	Draw.DEFAULT_END_AFTER = 1;
 
 	/**
-	 * status constants
-	 */
+   * status constants
+   */
 	Draw.ONGOING_STATUS = 'En cours';
 	Draw.PENDING_STATUS = 'En attente';
 	Draw.FINISHED_STATUS = 'Terminée';
@@ -57,7 +57,9 @@ module.exports = (sequelize, DataTypes) => {
 	};
 
 	Draw.init({
-		guild_id: { type: DataTypes.STRING, allowNull: false },
+		id: { primaryKey: true, type: DataTypes.INTEGER, allowNull: false, autoIncrement: true },
+		draw_id: { unique: 'UQ_DRAW_DRAW_GUILD', type: DataTypes.INTEGER, allowNull: false },
+		guild_id: { unique: 'UQ_DRAW_DRAW_GUILD', type: DataTypes.INTEGER, allowNull: false },
 		user_id: { type: DataTypes.STRING, allowNull: false },
 		winner_id: { type: DataTypes.STRING, defaultValue: null },
 		character: { type: DataTypes.STRING, allowNull: false },
