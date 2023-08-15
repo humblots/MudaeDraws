@@ -17,7 +17,10 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-		return await interaction.reply('Temporairement désactivé, mort, dead, pcq j\'ai la flemme de le faire');
+		return await interaction.reply({
+			content: 'Temporairement désactivé, mort, dead, pcq j\'ai la flemme de le faire',
+			ephemeral: true,
+		});
 		// const { guild, options } = interaction;
 		// const userId = options.getStringOption('user-id');
 		// const drawId = options.getInteger('draw-id');

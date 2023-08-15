@@ -9,7 +9,7 @@ module.exports = {
 		.setDefaultMemberPermissions(0)
 		.addRoleOption(option =>
 			option.setName('role')
-				.setDescription('Rôle à mentionner')
+				.setDescription('Rôle à mentionner'),
 		),
 	async execute(client, interaction) {
 		const role = interaction.options.getRole('role');
@@ -20,14 +20,15 @@ module.exports = {
 
 		let message;
 		if (role) {
-			message = 'Rôle défini !'
+			message = 'Rôle défini !';
 			guild.role = role.id;
-		} else {
-			message = guild.role ? 'Rôle supprimé !' : "Aucun rôle n'est défini"
-			guild.role = null
+		}
+		else {
+			message = guild.role ? 'Rôle supprimé !' : 'Aucun rôle n\'est défini';
+			guild.role = null;
 		}
 
 		await guild.save();
-		await interaction.reply(message, );
+		await interaction.reply({ content: message, ephemeral: true });
 	},
 };

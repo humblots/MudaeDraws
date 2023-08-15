@@ -13,7 +13,10 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-		return await interaction.reply('Temporairement désactivé, mort, dead, pcq j\'ai la flemme de le faire');
+		return await interaction.reply({
+			content: 'Temporairement désactivé, mort, dead, pcq j\'ai la flemme de le faire',
+			ephemeral: true,
+		});
 		// await interaction.deferReply();
 
 		// const id = interaction.options.getInteger('draw-id');

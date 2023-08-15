@@ -22,6 +22,6 @@ module.exports = {
 		guild.channel = channel.id;
 
 		await guild.save();
-		await interaction.reply('Channel défini !');
+		await interaction.reply({ content: 'Channel défini !', ephemeral: true });
 	},
 };
