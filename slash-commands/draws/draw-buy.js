@@ -149,7 +149,7 @@ module.exports = {
 		}
 
 		if (draw.user_id === member.id) {
-			return await interaction.editReply('Ce tirage t\'appartiens.');
+			return await interaction.editReply('Ce tirage t\'appartient.');
 		}
 
 		if (draw.max_entries !== null || draw.max_user_entries !== null) {
@@ -207,7 +207,6 @@ module.exports = {
 				return await interaction.followUp({
 					content: 'Le tirage a eu le temps de se terminer, dommage pour toi. ¯\\_(ツ)_/¯\n' +
             'Demande vite un remboursement !',
-					ephemeral: true,
 				});
 			}
 		}
@@ -216,7 +215,7 @@ module.exports = {
 			const [userParticipations, created] = await DrawParticipation.findOrCreate({
 				where: {
 					user_id: member.id,
-					draw_id: id,
+					draw_id: draw.id,
 					guild_id: guild.id,
 				},
 				defaults: {
@@ -233,6 +232,6 @@ module.exports = {
 			await userParticipation.save();
 		}
 
-		await interaction.followUp({ content: 'Achat effectué !', ephemeral: true });
+		await interaction.followUp({ content: 'Achat effectué !' });
 	},
 };
