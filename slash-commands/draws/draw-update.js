@@ -50,19 +50,16 @@ module.exports = {
 				.setMinValue(1),
 		),
 	async execute(client, interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		const { options, guild, member } = interaction;
 
 		const id = options.getInteger('draw-id');
-		const draw = await Draw.findOne({ where: { id, guild_id: guild.id }, include: Guild });
+		const draw = await Draw.findOne({ where: { draw_id: id, guild_id: guild.id }, include: Guild });
 		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
 
-		if (
-			draw.user_id !== member.id ||
-			draw.guild_id !== guild.id
-		) {
+		if (draw.user_id !== member.id) {
 			return await interaction.editReply(
 				'Tu n\'as pas le droit d\'éditer ce tirage.',
 			);
@@ -145,7 +142,7 @@ module.exports = {
 			const embed = await drawEmbed(draw, guild);
 			const message = {
 				content: `${draw.Guild.role ? '<@&' + draw.Guild.role + '> ' : ''}` +
-					`Le tirage pour ${draw.character} a été mis à jour !`,
+          `Le tirage pour ${draw.character} a été mis à jour !`,
 				embeds: [embed],
 			};
 			if (draw.Guild.channel !== null) {

@@ -63,7 +63,7 @@ module.exports = {
 				.setMinValue(1),
 		),
 	async execute(client, interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		const { guild, options } = interaction;
 
 		const [guildModel] = await Guild.findOrCreate({
@@ -145,7 +145,14 @@ module.exports = {
 		const price = options.getInteger('entry-price');
 		const status = createdAt.isBefore(startDate) ? Draw.PENDING_STATUS : Draw.ONGOING_STATUS;
 
+		const lastDraw = await Draw.findOne({
+			attributes: ['draw_id'],
+			where: { guild_id: guild.id },
+			order: [['draw_id', 'DESC']],
+		});
+
 		const draw = await Draw.create({
+			draw_id: lastDraw ? lastDraw.draw_id + 1 : 1,
 			guild_id: guild.id,
 			user_id: userId,
 			character: character,
@@ -163,10 +170,10 @@ module.exports = {
 		const embed = await drawEmbed(draw, guild);
 		channel.send({
 			content: `${guildModel.role ? '<@&' + guildModel.role + '>' : ''}` +
-				` Un nouveau tirage vient d'être créé pour **${draw.character}** !`,
+        ` Un nouveau tirage vient d'être créé pour **${draw.character}** !`,
 			embeds: [embed],
 		});
 
-		await interaction.editReply('Done.');
+		await interaction.editReply({ content: 'Done.', ephemeral: true });
 	},
 };

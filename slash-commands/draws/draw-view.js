@@ -39,19 +39,19 @@ module.exports = {
 		let showParticipations = false;
 
 		const draw = await Draw.findOne({
-			where: { id, guild_id: guild.id },
+			where: { draw_id: id, guild_id: guild.id },
 		});
 		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable');
 		}
 
 		const participations = await draw.getDrawParticipations();
-		const entriesSum = await DrawParticipation.sum('entries', { where: { draw_id: id } });
+		const entriesSum = await DrawParticipation.sum('entries', { where: { draw_id: draw.id } });
 
 		let embed;
 		if (draw.winner_id) {
 			const participation = await DrawParticipation.findOne({
-				where: { draw_id: draw.id, user_id: draw.winner_id },
+				where: { draw_id: draw.id, user_id: draw.winner_id, guild_id: guild.id },
 			});
 			embed = await winnerEmbed(draw, guild, draw.winner_id, participation.entries);
 		}

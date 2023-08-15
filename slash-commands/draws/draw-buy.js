@@ -13,8 +13,8 @@ const awaitGivek = async (channel, member, draw, amount) => {
 	const command = '$givek';
 	const filter = (m) =>
 		(m.content.toLowerCase().startsWith(command) ||
-			m.content.toLowerCase() === exitWord) &&
-		m.author.id === member.id;
+      m.content.toLowerCase() === exitWord) &&
+    m.author.id === member.id;
 
 	const collector = channel.createMessageCollector({ filter, time: 60 * 1000 });
 	return new Promise((resolve, reject) => {
@@ -55,8 +55,8 @@ const awaitValidation = async (channel, member, draw, amount) => {
 	const cancelChoices = ['no', 'n'];
 	const filter = (m) =>
 		(okChoices.concat(cancelChoices).includes(m.content.toLowerCase()) ||
-			m.content.toLowerCase() === exitWord) &&
-		m.author.id === member.id;
+      m.content.toLowerCase() === exitWord) &&
+    m.author.id === member.id;
 
 	const collector = channel.createMessageCollector({ filter, time: 15 * 1000 });
 	return new Promise((resolve, reject) => {
@@ -80,9 +80,9 @@ const awaitValidation = async (channel, member, draw, amount) => {
 				mudaeCollector.on('collect', (m) => {
 					if (
 						m.content.includes(member.id) &&
-						m.content.includes(amount) &&
-						m.content.includes(':kakera:469835869059153940') &&
-						m.content.includes(draw.user_id)
+            m.content.includes(amount) &&
+            m.content.includes(':kakera:469835869059153940') &&
+            m.content.includes(draw.user_id)
 					) {
 						resolve(true);
 						return mudaeCollector.stop('confirmed');
@@ -125,7 +125,7 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		const { options, member, channel, guild } = interaction;
 		const id = options.getInteger('draw-id');
 		const entries = options.getInteger('entries');
@@ -134,12 +134,10 @@ module.exports = {
 		const [user] = await User.findOrCreate({ where: { id: member.id } });
 
 		if (user.occupied) {
-			return await interaction.followUp(
-				'Tu as déjà une opération en cours...',
-			);
+			return await interaction.followUp({ content: 'Tu as déjà une opération en cours...', ephemeral: true });
 		}
 
-		const draw = await Draw.findOne({ where: { id, guild_id: guild.id } });
+		const draw = await Draw.findOne({ where: { draw_id: id, guild_id: guild.id } });
 		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
@@ -156,13 +154,13 @@ module.exports = {
 
 		if (draw.max_entries !== null || draw.max_user_entries !== null) {
 			userParticipation = await DrawParticipation.findOne({
-				where: { user_id: member.id, draw_id: id },
+				where: { user_id: member.id, draw_id: draw.id, guild_id: guild.id },
 			});
 			if (draw.max_user_entries) {
 				if (
 					entries > draw.max_user_entries ||
-					(userParticipation &&
-						userParticipation.entries + entries > draw.max_user_entries)
+          (userParticipation &&
+            userParticipation.entries + entries > draw.max_user_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée par utilisateur pour ce tirage.',
@@ -172,11 +170,11 @@ module.exports = {
 
 			if (draw.max_entries) {
 				const entriesSum = await DrawParticipation.sum('entries', {
-					where: { draw_id: id },
+					where: { draw_id: draw.id },
 				});
 				if (
 					entries > draw.max_entries ||
-					(entriesSum + entries > draw.max_entries)
+          (entriesSum + entries > draw.max_entries)
 				) {
 					return await interaction.editReply(
 						'Le nombre d\'entrées que tu souhaites acheter dépasse la limite autorisée pour ce tirage.',
@@ -189,9 +187,9 @@ module.exports = {
 		if (amount !== 0) {
 			await interaction.editReply(
 				`Pour confirmer ton achat, tapes la commande: $givek ${draw.user_id} ${amount}\n` +
-				':warning: Seule cette commande sera prise en compte !\n' +
-				'Une fois la commande validée, ton achat sera effectif.:\n' +
-				`Pour annuler l'opération, tapes ${exitWord}.`,
+        ':warning: Seule cette commande sera prise en compte !\n' +
+        'Une fois la commande validée, ton achat sera effectif.:\n' +
+        `Pour annuler l'opération, tapes ${exitWord}.`,
 			);
 
 			await user.update({ occupied: true });
@@ -208,7 +206,8 @@ module.exports = {
 			if (moment(draw.end_date).isBefore(moment())) {
 				return await interaction.followUp({
 					content: 'Le tirage a eu le temps de se terminer, dommage pour toi. ¯\\_(ツ)_/¯\n' +
-						'Demande vite un remboursement !',
+            'Demande vite un remboursement !',
+					ephemeral: true,
 				});
 			}
 		}
@@ -218,6 +217,7 @@ module.exports = {
 				where: {
 					user_id: member.id,
 					draw_id: id,
+					guild_id: guild.id,
 				},
 				defaults: {
 					entries: entries,
@@ -233,6 +233,6 @@ module.exports = {
 			await userParticipation.save();
 		}
 
-		await interaction.followUp({ content: 'Achat effectué !' });
+		await interaction.followUp({ content: 'Achat effectué !', ephemeral: true });
 	},
 };

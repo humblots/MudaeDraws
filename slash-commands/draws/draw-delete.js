@@ -15,19 +15,16 @@ module.exports = {
 				.setRequired(true),
 		),
 	async execute(client, interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply({ ephemeral: true });
 		const { options, member, guild } = interaction;
 		const id = options.getInteger('draw-id');
 
-		const draw = await Draw.findOne({ where: { id, guild_id: guild.id }, include: Guild });
+		const draw = await Draw.findOne({ where: { draw_id: id, guild_id: guild.id }, include: Guild });
 		if (draw === null) {
 			return await interaction.editReply('Tirage introuvable.');
 		}
 
-		if (
-			draw.user_id !== member.id ||
-			draw.guild_id !== guild.id
-		) {
+		if (draw.user_id !== member.id) {
 			return await interaction.editReply(
 				'Tu n\'as pas le droit de supprimer ce tirage.',
 			);
@@ -44,7 +41,7 @@ module.exports = {
 		const embed = await drawEmbed(draw, guild);
 		const message = {
 			content: `${draw.Guild.role ? '<@&' + draw.Guild.role + '> ' : ''}` +
-				`Le tirage pour ${draw.character} a été supprimé !`,
+        `Le tirage pour ${draw.character} a été supprimé !`,
 			embeds: [embed],
 		};
 		if (draw.Guild.channel !== null) {
@@ -52,6 +49,6 @@ module.exports = {
 			channel.send(message);
 			return await interaction.editReply('Done.');
 		}
-		return await interaction.editReply(message);
+		return await interaction.editReply({ ...message, ephemeral: true });
 	},
 };

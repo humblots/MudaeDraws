@@ -18,8 +18,8 @@ const drawEmbed = async (draw, guild, pagination = null) => {
 			`**Prix de l'entrée:** ${
 				draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price
 			}\n` +
-			`**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
-			`**Entrées max total:** ${draw.max_entries || 'illimité'}`,
+      `**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
+      `**Entrées max total:** ${draw.max_entries || 'illimité'}`,
 		)
 		.addFields({
 			name: 'Date de début',
@@ -31,8 +31,8 @@ const drawEmbed = async (draw, guild, pagination = null) => {
 		.setImage(draw.img_url)
 		.setFooter({
 			text: `Par ${member ? member.displayName : draw.user_id}\n` +
-				`id: ${draw.id} - ${draw.status}` +
-				paginationTrace,
+        `id: ${draw.draw_id} - ${draw.status}` +
+        paginationTrace,
 			iconURL: member ? member.user.avatarURL() : null,
 		});
 
@@ -88,14 +88,14 @@ const _addDrawField = (embed, draw, member) => {
 
 	embed.addFields({
 		name: `${draw.getStatusSymbol()} ${draw.status} - ` +
-			`${draw.character} - Id: ${draw.id} - Par ${member ? member.displayName : draw.user_id}`,
+      `${draw.character} - Id: ${draw.draw_id} - Par ${member ? member.displayName : draw.user_id}`,
 		value: `**Prix de l'entrée:** ${
 			draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price
 		}\n` +
-			`**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
-			`**Entrées max total:** ${draw.max_entries || 'illimité'}\n` +
-			`**Date de début:** <t:${startDateTimeStamp}:R>\n` +
-			`**Date de fin:** <t:${endDateTimeStamp}:R>`,
+      `**Entrées max par participants:** ${draw.max_user_entries || 'illimité'}\n` +
+      `**Entrées max total:** ${draw.max_entries || 'illimité'}\n` +
+      `**Date de début:** <t:${startDateTimeStamp}:R>\n` +
+      `**Date de fin:** <t:${endDateTimeStamp}:R>`,
 	});
 };
 
@@ -112,7 +112,7 @@ const participationsEmbed = async (
 		.setTitle('Participations pour le tirage de ' + draw.character)
 		.setFooter({
 			text: `Par ${drawMember ? drawMember.displayName : draw.user_id}\n` +
-				`id: ${draw.id} - ${draw.status}`,
+        `id: ${draw.draw_id} - ${draw.status}`,
 			iconURL: drawMember ? drawMember.user.avatarURL() : null,
 		});
 
@@ -126,8 +126,8 @@ const participationsEmbed = async (
 		embed.addFields({
 			name: member ? member.displayName : participation.user_id,
 			value: `Nombre d'entrées: ${participation.entries}/${draw.max_user_entries || draw.max_entries || '∞'} ` +
-				`- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
-				`Total dépensé: ${participation.entries * price}`,
+        `- ${(participation.entries / entriesSum).toFixed(6) * 100} %\n` +
+        `Total dépensé: ${participation.entries * price}`,
 		});
 	}
 
@@ -158,13 +158,13 @@ const winnerEmbed = async (draw, guild, winnerId, winnerEntries) => {
 		)
 		.setDescription(
 			`**Nombre d'entrées:** ${winnerEntries}\n` +
-			`**Total dépensé:** ${winnerEntries * (draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price)}\n` +
-			'Fais-un signe à l\'organisateur pour récupérer ton gain',
+      `**Total dépensé:** ${winnerEntries * (draw.entry_price === null ? Draw.DEFAULT_PRICE : draw.entry_price)}\n` +
+      'Fais-un signe à l\'organisateur pour récupérer ton gain',
 		)
 		.setImage(draw.img_url)
 		.setFooter({
 			text: `Par ${drawMember ? drawMember.displayName : draw.user_id}\n` +
-				`id: ${draw.id} - ${draw.status}`,
+        `id: ${draw.draw_id} - ${draw.status}`,
 			iconURL: drawMember ? drawMember.user.avatarURL() : null,
 		});
 
