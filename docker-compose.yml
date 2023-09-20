@@ -1,18 +1,6 @@
-version: "3.9"
-
+version: "3.8"
+name: "mudaedraws"
 services:
-  adminer:
-    image: adminer
-    container_name: ma_adminer
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mudaedraws_adminer.rule=Host(`HOST`)"
-    environment:
-      ADMINER_DESIGN: hydra
-      ADMINER_DEFAULT_SERVER: ma_mysql
-    networks:
-      - mudaeDraws
-
   mysql:
     image: mysql
     container_name: ma_mysql
@@ -32,7 +20,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - mudaeDraws
+      - local
 
   cli:
     build: .
@@ -44,11 +32,11 @@ services:
     volumes:
       - ./:/src/
     networks:
-      - mudaeDraws
+      - local
 
 volumes:
   mudaeDb:
+    external: true
 
 networks:
-  mudaeDraws:
-    external: true
+  local:

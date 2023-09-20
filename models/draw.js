@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
 	Draw.init({
 		id: { primaryKey: true, type: DataTypes.INTEGER, allowNull: false, autoIncrement: true },
 		draw_id: { unique: 'UQ_DRAW_DRAW_GUILD', type: DataTypes.INTEGER, allowNull: false },
-		guild_id: { unique: 'UQ_DRAW_DRAW_GUILD', type: DataTypes.INTEGER, allowNull: false },
+		guild_id: { unique: 'UQ_DRAW_DRAW_GUILD', type: DataTypes.STRING, allowNull: false },
 		user_id: { type: DataTypes.STRING, allowNull: false },
 		winner_id: { type: DataTypes.STRING, defaultValue: null },
 		character: { type: DataTypes.STRING, allowNull: false },
